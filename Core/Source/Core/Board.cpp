@@ -1,10 +1,25 @@
 #include <iostream>
 #include <vector>
-#include <unordered_set>
-#include "types.h"
 #include "Board.h"
 #include <string>
 #include <algorithm>
+
+Piece GameState::getPiece(int row,int col)const{
+    return board[row][col];
+}
+Color GameState::getTurn()const{
+    if(WhiteToMove){
+        return Color::White;
+    }
+    return Color::Black;
+}
+Color checkColor(char c){
+    if (c!='r'||c!='n'||c!='q'||c!='k'||c!='b'||c!='p'){
+        return Color::White;
+    }
+    return Color::Black;
+}
+
 
 std::vector<std::string> split(const std::string&str,char delimter){
     std::vector<std::string>parts;
@@ -53,7 +68,7 @@ PieceType charToPiece(char c){
 
 
 void GameState::LoadFEN(const std::string &fen){
-    std::fill(&board[0][0], &board[0][0] + 64, PieceType::None);//resets the postions everytime LoadFEN is called
+    std::fill(&board[0][0], &board[0][0] + 64, Piece{PieceType::None,Color::None});//resets the postions everytime LoadFEN is called
     std::vector<std::string> parts=split(fen,' ');
     std::string pos=parts[0];
         int row=0;
@@ -67,7 +82,9 @@ void GameState::LoadFEN(const std::string &fen){
                 col+=(pos[j]-'0');
             }
             else{
-                board[row][col]=charToPiece(pos[j]);
+                Color color=checkColor(pos[j]);
+                PieceType piece= charToPiece(pos[j]);
+                board[row][col]=Piece{piece,color};
                 col++;
             }
         }
