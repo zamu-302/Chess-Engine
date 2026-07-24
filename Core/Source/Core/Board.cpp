@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_set>
 #include "types.h"
+#include "Board.h"
 #include <string>
 #include <algorithm>
 
@@ -49,26 +50,7 @@ PieceType charToPiece(char c){
     }
 }
 
-class GameState{
-public:
 
-void LoadFEN(const std::string & fen);
-std::string toFEN()const;
-void Makemove(Move move);
-void UndoMove();
-GameState() {
-    LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-}
-private:
-PieceType board[8][8]={};
-bool WhiteToMove;
-bool castlingKingSideWhite,castlingQueenSideWhite;
-bool castlingKingSideBlack,castlingQueenSideBlack;
-int enPassantTargetRow;
-int enPassantTargetcol;
-int fullMoveClock=1;
-int halfMoveClock=0;
-};
 
 void GameState::LoadFEN(const std::string &fen){
     std::fill(&board[0][0], &board[0][0] + 64, PieceType::None);//resets the postions everytime LoadFEN is called
