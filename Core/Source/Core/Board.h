@@ -7,13 +7,15 @@ public:
 
 void LoadFEN(const std::string & fen);
 std::string toFEN()const;
-void Makemove(Move move);
+
 Piece getPiece(int row,int col) const;
 Color getTurn()const;
+void Makemove(Move move);
 void UndoMove();
-bool inCheck();
 int getEnPassantTargetcol();
 int getEnPassantTargetrow();
+bool inCheck();
+
 GameState() {
     LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 }

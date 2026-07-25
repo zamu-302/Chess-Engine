@@ -5,9 +5,6 @@
 #include <algorithm>
 
 Piece GameState::getPiece(int row,int col)const{
-    if (row>-1||row<8||col>-1||col<8){
-        return Piece{PieceType::None,Color::None};
-    }
     return board[row][col];
 }
 int GameState::getEnPassantTargetcol(){
