@@ -5,7 +5,7 @@
 #include <algorithm>
 
 Piece GameState::getPiece(int row,int col)const{
-    if (row<0||row>7||col<0||col>7){
+    if (row>-1||row<8||col>-1||col<8){
         return Piece{PieceType::None,Color::None};
     }
     return board[row][col];

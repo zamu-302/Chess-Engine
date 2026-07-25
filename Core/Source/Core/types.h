@@ -10,6 +10,16 @@ Rook,
 Queen,
 King
 };
+
+enum class MoveType{
+    Normal,
+    KingSideCastle,
+    QueenSideCastle,
+    Capture,
+    Enpassant,
+    Promotion,
+   
+};
 enum class Color{
     None,
     Black,
@@ -24,4 +34,6 @@ struct Move{
     int fromCol;
     int toRow;
     int toCol;
+    MoveType type=MoveType::Normal;
+    PieceType PromotionPiece=PieceType::None;
 };
