@@ -5,7 +5,16 @@
 #include <algorithm>
 
 Piece GameState::getPiece(int row,int col)const{
+    if (row<0||row>7||col<0||col>7){
+        return Piece{PieceType::None,Color::None};
+    }
     return board[row][col];
+}
+int GameState::getEnPassantTargetcol(){
+    return enPassantTargetcol;
+}
+int GameState::getEnPassantTargetrow(){
+    return enPassantTargetRow;
 }
 Color GameState::getTurn()const{
     if(WhiteToMove){
@@ -13,7 +22,7 @@ Color GameState::getTurn()const{
     }
     return Color::Black;
 }
-Color checkColor(char c){
+Color checkColor(char c)  {
     if (c!='r'||c!='n'||c!='q'||c!='k'||c!='b'||c!='p'){
         return Color::White;
     }

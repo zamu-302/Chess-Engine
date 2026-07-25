@@ -12,6 +12,8 @@ Piece getPiece(int row,int col) const;
 Color getTurn()const;
 void UndoMove();
 bool inCheck();
+int getEnPassantTargetcol();
+int getEnPassantTargetrow();
 GameState() {
     LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 }
