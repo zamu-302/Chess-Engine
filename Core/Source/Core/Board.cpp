@@ -7,10 +7,17 @@
 Piece GameState::getPiece(int row,int col)const{
     return board[row][col];
 }
-int GameState::getEnPassantTargetcol(){
+std::pair<bool, bool> GameState::getCastlingRights(Color c) const{
+    if(c==Color::Black){
+        return {castlingKingSideBlack,castlingQueenSideBlack};
+    }
+    return {castlingKingSideWhite,castlingQueenSideWhite};
+}
+
+int GameState::getEnPassantTargetcol()const{
     return enPassantTargetcol;
 }
-int GameState::getEnPassantTargetrow(){
+int GameState::getEnPassantTargetrow()const {
     return enPassantTargetRow;
 }
 Color GameState::getTurn()const{

@@ -1,5 +1,6 @@
 #pragma once 
 #include <iostream>
+#include <utility>
 #include "types.h"
 
 class GameState{
@@ -12,10 +13,10 @@ Piece getPiece(int row,int col) const;
 Color getTurn()const;
 void Makemove(Move move);
 void UndoMove();
-int getEnPassantTargetcol();
-int getEnPassantTargetrow();
+int getEnPassantTargetcol() const;
+int getEnPassantTargetrow()const ;
 bool inCheck();
-
+std::pair<bool, bool> getCastlingRights(Color c) const;
 GameState() {
     LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 }

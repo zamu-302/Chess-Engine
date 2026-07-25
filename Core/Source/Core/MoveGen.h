@@ -9,9 +9,9 @@ std::vector<Move> generateLegalMoves(const GameState& state);
 
 
 //helpers
-void generatePawnmoves(const GameState& state, int row, int col,std::vector<Move>& moves);
-void generateQueenmoves(const GameState& state, int row, int col,std::vector<Move>& moves);
-void generateRookmoves(const GameState& state, int row, int col,std::vector<Move>& moves);
-void generateKnightmoves(const GameState& state, int row, int col,std::vector<Move>& moves);
-void generateBishopmoves(const GameState& state, int row, int col,std::vector<Move>& moves);
-void generateKingmoves(const GameState& state, int row, int col,std::vector<Move>& moves);
+void generatePawnMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
+void generateQueenMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
+void generateRookMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
+void generateKnightMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
+void generateBishopMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
+void generateKingMoves(const GameState& state, int row, int col,std::vector<Move>& moves);

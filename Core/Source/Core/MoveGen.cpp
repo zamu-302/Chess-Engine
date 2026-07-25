@@ -1,14 +1,11 @@
 #include <iostream>
 #include "MoveGen.h"
 #include <vector>
-bool checkBound(int row,int col){
-    if (row>-1||row<8||col>-1||col<8){
-        return false;
-    }
-    return true;
+bool checkBound(int row, int col) {
+    return row >= 0 && row < 8 && col >= 0 && col < 8;
 }
 
-void generatePawnMoves(GameState & state,int row,int col,std::vector<Move> &moves){
+void generatePawnMoves(const GameState & state,int row,int col,std::vector<Move> &moves){
 // Blacks turn 
 if((state.getTurn()==Color::Black)){
 
@@ -21,6 +18,7 @@ if((state.getTurn()==Color::Black)){
         else{
             moves.push_back({row,col,row+1,col});
         }
+    }
     //intial 2 space move
     if ((row==1)&&(state.getPiece(row+2,col).type==PieceType::None)){
         moves.push_back({row,col,row+2,col});
@@ -42,7 +40,7 @@ if((state.getTurn()==Color::Black)){
             moves.push_back({row,col,row+1,col-1,MoveType::Enpassant});
         }
     }
-    }
+    
      
 }
 
@@ -84,7 +82,7 @@ else if((state.getTurn()==Color::White)){
 
 }
 
-void generateKnightMoves(GameState& state, int row,int col,std::vector<Move> &moves){
+void generateKnightMoves(const GameState& state, int row,int col,std::vector<Move> &moves){
 int offsets[8][2] = {
         {2, 1}, {2, -1},
         {-2, 1}, {-2, -1},
@@ -114,7 +112,7 @@ int offsets[8][2] = {
 
 }
 
-void generateKingMoves(GameState& state, int row,int col, std::vector<Move>& moves){
+void generateKingMoves(const GameState& state, int row,int col, std::vector<Move>& moves){
     int offsets[8][2] = {
         {1, 0}, {1, -1},
         {1, 1}, {0, -1},
@@ -139,8 +137,35 @@ void generateKingMoves(GameState& state, int row,int col, std::vector<Move>& mov
         } 
 }
     //castling
-    
+    if(state.getPiece(row,col).color==Color::Black){
+        std::pair<bool,bool> rights=state.getCastlingRights(Color::Black);
+        bool kingside=rights.first;
+        bool queenside=rights.second;
+        if(kingside){
+            moves.push_back({row,col,row,col+2,MoveType::KingSideCastle});
 
+        }
+        if(queenside){
+            moves.push_back({row,col,row,col-2,MoveType::QueenSideCastle});
+        }
+
+    }
+    else{
+       std::pair<bool,bool> rights=state.getCastlingRights(Color::White);
+        bool kingside=rights.first;
+        bool queenside=rights.second; 
+        if(kingside){
+            moves.push_back({row,col,row,col+2,MoveType::KingSideCastle});
+        }
+        if(queenside){
+            moves.push_back({row,col,row,col-2,MoveType::QueenSideCastle});
+        }
+    }
+
+}
+
+void generateRookMoves(const GameState& state, int row, int col,std::vector<Move>&moves){
+    
 }
 std::vector<Move> generatePseudoLegalMoves(const GameState& state){
 std::vector<Move> moves;
@@ -155,22 +180,22 @@ for(int row=0;row<8;row++){
         switch (p)
         {
         case PieceType::Pawn:
-            generatePawnmoves(state,row,col,moves);
+            generatePawnMoves(state,row,col,moves);
             break;
         case PieceType::Knight:
-            generateKnightmoves(state,row,col,moves);
+            generateKnightMoves(state,row,col,moves);
             break;
         case PieceType::King:
-            generateKingmoves(state,row,col,moves);
+            generateKingMoves(state,row,col,moves);
             break;
         case PieceType::Queen:
-            generateQueenmoves(state,row,col,moves);
+            generateQueenMoves(state,row,col,moves);
             break;
         case PieceType::Rook:
-            generateRookmoves(state,row,col,moves);
+            generateRookMoves(state,row,col,moves);
             break;
         case PieceType::Bishop:
-            generateBishopmoves(state,row,col,moves);
+            generateBishopMoves(state,row,col,moves);
             break;
         
         default:
