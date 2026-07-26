@@ -81,7 +81,6 @@ else if((state.getTurn()==Color::White)){
 
 
 }
-
 void generateKnightMoves(const GameState& state, int row,int col,std::vector<Move> &moves){
 int offsets[8][2] = {
         {2, 1}, {2, -1},
@@ -111,7 +110,6 @@ int offsets[8][2] = {
 
 
 }
-
 void generateKingMoves(const GameState& state, int row,int col, std::vector<Move>& moves){
     int offsets[8][2] = {
         {1, 0}, {1, -1},
@@ -163,10 +161,55 @@ void generateKingMoves(const GameState& state, int row,int col, std::vector<Move
     }
 
 }
-
 void generateRookMoves(const GameState& state, int row, int col,std::vector<Move>&moves){
+    int offset[4][2]{{1,0},{-1,0},{0,1},{0,-1}};
+    for(int i=0;i<4;++i){
+        int curRow=offset[i][0]+row;
+        int curCol=offset[i][1]+col;
+
+        while(checkBound(curRow,curCol)){
+            if(state.getPiece(curRow,curCol).type==PieceType::None){
+                moves.push_back({row,col,curRow,curCol});
+            }
+            else if(state.getPiece(curRow,curCol).color!=state.getTurn()){
+                moves.push_back({row,col,curRow,curCol,MoveType::Capture});
+                break;
+            }
+            else{
+                break;
+            }
+            curRow+=offset[i][0];
+            curCol+=offset[i][1];
+        }
+    }
+}
+void generateBishopMoves(const GameState& state, int row,int col,std::vector<Move>& moves){
+    int offset[4][2]{{1,1},{1,-1},{-1,1},{-1,-1}};
+    for(int i=0;i<4;i++){
+    int curRow=offset[i][0];
+    int curCol=offset[i][1];
+    while(checkBound(curRow,curCol)){
+        if(state.getPiece(curRow,curCol).type==PieceType::None){
+            moves.push_back({row,col,curRow,curCol});
+        }
+        else if(state.getPiece(curRow,curCol).color!=state.getTurn()){
+            moves.push_back({row,col,curRow,curCol,MoveType::Capture});
+            break;
+        }
+        else{
+            break;
+        }
+        curRow+=offset[i][0];
+        curCol+=offset[i][1];
+        }
+    }
     
 }
+void generateQueenMoves(const GameState& state, int row, int col,std::vector<Move>& moves){
+    generateBishopMoves(state,row,col,moves);
+    generateRookMoves(state,row,col,moves);
+}
+
 std::vector<Move> generatePseudoLegalMoves(const GameState& state){
 std::vector<Move> moves;
 for(int row=0;row<8;row++){
