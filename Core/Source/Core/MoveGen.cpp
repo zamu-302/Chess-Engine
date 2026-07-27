@@ -218,8 +218,8 @@ void generateRookMoves(const GameState& state, int row, int col,std::vector<Move
 void generateBishopMoves(const GameState& state, int row,int col,std::vector<Move>& moves){
     int offset[4][2]{{1,1},{1,-1},{-1,1},{-1,-1}};
     for(int i=0;i<4;i++){
-    int curRow=offset[i][0];
-    int curCol=offset[i][1];
+    int curRow=offset[i][0]+row;
+    int curCol=offset[i][1]+col;
     while(checkBound(curRow,curCol)){
         if(state.getPiece(curRow,curCol).type==PieceType::None){
             moves.push_back({row,col,curRow,curCol});
@@ -292,11 +292,15 @@ std::vector<Move> generateLegalMoves(const GameState& state){
     std::vector<Move> LegalMoves;
 
     for(auto& move:moves){
-        Makemove(move);
+        GameState copy=state;
+        copy.Makemove(move);
+        if(!copy.inCheck()){
+            LegalMoves.push_back(move);
+        }
     }
 
 
 
 
-    return moves;
+    return LegalMoves;
 }

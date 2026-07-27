@@ -42,7 +42,7 @@ void GameState::Makemove(const Move &move){
         if((board[move.toRow][move.toCol].type==PieceType::Pawn)){
             halfMoveClock=0;
             if(abs(move.toRow-move.fromRow)==2){
-                enPassantTargetRow=(move.fromRow+move.fromRow)/2;
+                enPassantTargetRow=(move.fromRow+move.toRow)/2;
                 enPassantTargetcol=move.fromCol;
                 flag=true;
             }
