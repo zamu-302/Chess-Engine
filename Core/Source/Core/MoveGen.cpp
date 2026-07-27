@@ -174,11 +174,18 @@ void generateKingMoves(const GameState& state, int row,int col, std::vector<Move
         bool kingside=rights.first;
         bool queenside=rights.second;
         if(kingside){
-            moves.push_back({row,col,row,col+2,MoveType::KingSideCastle});
+            if((state.getPiece(0,6).type==PieceType::None)&&(state.getPiece(0,5).type==PieceType::None)){
+                moves.push_back({row,col,row,col+2,MoveType::KingSideCastle});
+
+            }
+            
 
         }
         if(queenside){
-            moves.push_back({row,col,row,col-2,MoveType::QueenSideCastle});
+            if((state.getPiece(0,1).type==PieceType::None)&&(state.getPiece(0,2).type==PieceType::None)&&(state.getPiece(0,3).type==PieceType::None)){
+                moves.push_back({row,col,row,col-2,MoveType::QueenSideCastle});
+            }
+            
         }
 
     }
@@ -187,10 +194,15 @@ void generateKingMoves(const GameState& state, int row,int col, std::vector<Move
         bool kingside=rights.first;
         bool queenside=rights.second; 
         if(kingside){
-            moves.push_back({row,col,row,col+2,MoveType::KingSideCastle});
+              if((state.getPiece(7,6).type==PieceType::None)&&(state.getPiece(7,5).type==PieceType::None)){
+               moves.push_back({row,col,row,col+2,MoveType::KingSideCastle});
+            }
+            
         }
         if(queenside){
-            moves.push_back({row,col,row,col-2,MoveType::QueenSideCastle});
+             if((state.getPiece(7,1).type==PieceType::None)&&(state.getPiece(7,2).type==PieceType::None)&&(state.getPiece(7,3).type==PieceType::None)){
+                moves.push_back({row,col,row,col-2,MoveType::QueenSideCastle});
+            }
         }
     }
 
