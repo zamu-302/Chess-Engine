@@ -1,5 +1,6 @@
 #pragma once 
 #include <iostream>
+#include <string>
 #include <utility>
 #include "types.h"
 
@@ -23,10 +24,10 @@ GameState() {
 private:
 Piece board[8][8];
 bool WhiteToMove=true;
-bool castlingKingSideWhite=false;
-bool castlingQueenSideWhite=false;
-bool castlingKingSideBlack=false;
-bool castlingQueenSideBlack=false;
+bool castlingKingSideWhite=true;
+bool castlingQueenSideWhite=true;
+bool castlingKingSideBlack=true;
+bool castlingQueenSideBlack=true;
 int enPassantTargetRow=-1;
 int enPassantTargetcol=-1;
 int fullMoveClock=1;

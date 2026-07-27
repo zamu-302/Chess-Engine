@@ -27,7 +27,7 @@ if((state.getTurn()==Color::Black)){
 
     //capturing if it's in row+1,col+-1 
     if((checkBound(row+1,col-1))&&(state.getPiece(row+1,col-1).color==Color::White)){
-        if(row==7){
+        if(row==6){
             for(auto p:{PieceType::Knight,PieceType::Bishop,PieceType::Queen,PieceType::Rook}){
                 moves.push_back({row,col,row+1,col-1,MoveType::PromotionCapture,p});
         }
@@ -37,7 +37,7 @@ if((state.getTurn()==Color::Black)){
     }
     }
     if (checkBound(row+1,col+1)&&(state.getPiece(row+1,col+1).color==Color::White)){
-        if(row==7){
+        if(row==6){
             for(auto p:{PieceType::Knight,PieceType::Bishop,PieceType::Queen,PieceType::Rook}){
                 moves.push_back({row,col,row+1,col+1,MoveType::PromotionCapture,p});
         }
@@ -104,6 +104,7 @@ else if((state.getTurn()==Color::White)){
         }
         else if((checkBound(row-1,col-1))&&(state.getPiece(row,col-1).color==Color::Black)&&(col-1==state.getEnPassantTargetcol())){
             moves.push_back({row,col,row-1,col-1,MoveType::Enpassant});
+
         }
     }
     

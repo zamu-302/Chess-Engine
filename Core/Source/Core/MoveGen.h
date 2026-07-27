@@ -8,6 +8,7 @@ std::vector<Move> generatePseudoLegalMoves(const GameState& state);
 std::vector<Move> generateLegalMoves(const GameState& state);
 
 
+
 //helpers
 void generatePawnMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
 void generateQueenMoves(const GameState& state, int row, int col,std::vector<Move>& moves);

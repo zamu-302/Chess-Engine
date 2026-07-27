@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include "Board.h"
+#include "MoveGen.h"
+#include <cctype>
+#include <cstdlib>
 #include <string>
 #include <algorithm>
 
@@ -27,7 +30,7 @@ Color GameState::getTurn()const{
     return Color::Black;
 }
 Color checkColor(char c)  {
-    if (c!='r'||c!='n'||c!='q'||c!='k'||c!='b'||c!='p'){
+    if (!std::islower(c)){
         return Color::White;
     }
     return Color::Black;
@@ -172,7 +175,18 @@ PieceType charToPiece(char c){
     }
 }
 
-
+bool GameState::inCheck(){
+    std::vector<Move> moves=generatePseudoLegalMoves(*this);
+    for(auto move:moves){
+        if(move.type==MoveType::Capture||move.type==MoveType::PromotionCapture){
+            if((board[move.toRow][move.toCol].type==PieceType::King)&&(board[move.toRow][move.toCol].color!=getTurn())){
+                return true;
+            }
+            
+        }
+    }
+    return false;
+}
 
 void GameState::LoadFEN(const std::string &fen){
     std::fill(&board[0][0], &board[0][0] + 64, Piece{PieceType::None,Color::None});//resets the postions everytime LoadFEN is called
@@ -235,8 +249,8 @@ void GameState::LoadFEN(const std::string &fen){
             enPassantTargetRow=-1;
         }
         else{
-            enPassantTargetRow=enpassant[0]-'a';
-            enPassantTargetcol=enpassant[1]-'1';
+            enPassantTargetcol=enpassant[0]-'a';
+            enPassantTargetRow=enpassant[1]-'1';
         }
             
         
