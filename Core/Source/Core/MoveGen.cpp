@@ -18,12 +18,13 @@ if((state.getTurn()==Color::Black)){
         else{
             moves.push_back({row,col,row+1,col});
         }
-    }
+    
     
     //intial 2 space move
     if ((row==1)&&(state.getPiece(row+2,col).type==PieceType::None)){
         moves.push_back({row,col,row+2,col});
     }
+}
 
     //capturing if it's in row+1,col+-1 
     if((checkBound(row+1,col-1))&&(state.getPiece(row+1,col-1).color==Color::White)){
