@@ -18,7 +18,7 @@ enum class MoveType{
     Capture,
     Enpassant,
     Promotion,
-   
+   PromotionCapture
 };
 enum class Color{
     None,

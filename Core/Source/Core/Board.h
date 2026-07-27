@@ -11,7 +11,7 @@ std::string toFEN()const;
 
 Piece getPiece(int row,int col) const;
 Color getTurn()const;
-void Makemove(Move move);
+void Makemove(const Move& move);
 void UndoMove();
 int getEnPassantTargetcol() const;
 int getEnPassantTargetrow()const ;

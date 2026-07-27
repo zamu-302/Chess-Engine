@@ -19,17 +19,33 @@ if((state.getTurn()==Color::Black)){
             moves.push_back({row,col,row+1,col});
         }
     }
+    
     //intial 2 space move
     if ((row==1)&&(state.getPiece(row+2,col).type==PieceType::None)){
         moves.push_back({row,col,row+2,col});
     }
 
     //capturing if it's in row+1,col+-1 
-    if((checkBound(row+1,col-1))&&(state.getPiece(row+1,col-1).color==Color::White)){// if row or col out of bound then it return Color::None
+    if((checkBound(row+1,col-1))&&(state.getPiece(row+1,col-1).color==Color::White)){
+        if(row==7){
+            for(auto p:{PieceType::Knight,PieceType::Bishop,PieceType::Queen,PieceType::Rook}){
+                moves.push_back({row,col,row+1,col-1,MoveType::PromotionCapture,p});
+        }
+        }
+        else{
         moves.push_back({row,col,row+1,col-1,MoveType::Capture});
     }
+    }
     if (checkBound(row+1,col+1)&&(state.getPiece(row+1,col+1).color==Color::White)){
+        if(row==7){
+            for(auto p:{PieceType::Knight,PieceType::Bishop,PieceType::Queen,PieceType::Rook}){
+                moves.push_back({row,col,row+1,col+1,MoveType::PromotionCapture,p});
+        }
+        }
+        else{
         moves.push_back({row,col,row+1,col+1,MoveType::Capture});
+    }
+        
     }
     //enpassant
     if (row+1==state.getEnPassantTargetrow()){
@@ -60,10 +76,26 @@ else if((state.getTurn()==Color::White)){
 }
      //capturing if it's in row-1,col+-1 
     if((checkBound(row-1,col-1))&&(state.getPiece(row-1,col-1).color==Color::Black)){
+        if(row==1){
+            for(auto p:{PieceType::Knight,PieceType::Bishop,PieceType::Queen,PieceType::Rook}){
+                moves.push_back({row,col,row-1,col-1,MoveType::PromotionCapture,p});
+        }
+        }
+        else{
         moves.push_back({row,col,row-1,col-1,MoveType::Capture});
     }
+       
+    }
     if ((checkBound(row-1,col+1))&&(state.getPiece(row-1,col+1).color==Color::Black)){
+        if(row==1){
+            for(auto p:{PieceType::Knight,PieceType::Bishop,PieceType::Queen,PieceType::Rook}){
+                moves.push_back({row,col,row-1,col+1,MoveType::PromotionCapture,p});
+        }
+        }
+        else{
         moves.push_back({row,col,row-1,col+1,MoveType::Capture});
+    }
+        
     }
     //enpassant
     if (row-1==state.getEnPassantTargetrow()){
@@ -255,4 +287,16 @@ for(int row=0;row<8;row++){
 
 
 }
+std::vector<Move> generateLegalMoves(const GameState& state){
+    std::vector<Move> moves=generatePseudoLegalMoves(state);
+    std::vector<Move> LegalMoves;
 
+    for(auto& move:moves){
+        Makemove(state,move);
+    }
+
+
+
+
+    return moves;
+}
