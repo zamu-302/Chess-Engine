@@ -292,7 +292,7 @@ std::vector<Move> generateLegalMoves(const GameState& state){
     std::vector<Move> LegalMoves;
 
     for(auto& move:moves){
-        Makemove(state,move);
+        Makemove(move);
     }
 
 

@@ -104,7 +104,26 @@ void GameState::Makemove(const Move &move){
         fullMoveClock++;
         
     }
-    WhiteToMove^=1;
+    // king moved — lose both rights for that color
+if (move.fromRow == 7 && move.fromCol == 4) {
+    castlingKingSideWhite = castlingQueenSideWhite = false;
+}
+if (move.fromRow == 0 && move.fromCol == 4) {
+    castlingKingSideBlack = castlingQueenSideBlack = false;
+}
+
+// rook moved from starting square — lose that side's right
+if (move.fromRow == 7 && move.fromCol == 7) castlingKingSideWhite = false;
+if (move.fromRow == 7 && move.fromCol == 0) castlingQueenSideWhite = false;
+if (move.fromRow == 0 && move.fromCol == 7) castlingKingSideBlack = false;
+if (move.fromRow == 0 && move.fromCol == 0) castlingQueenSideBlack = false;
+
+// rook captured on its starting square — lose that right too
+if (move.toRow == 7 && move.toCol == 7) castlingKingSideWhite = false;
+if (move.toRow == 7 && move.toCol == 0) castlingQueenSideWhite = false;
+if (move.toRow == 0 && move.toCol == 7) castlingKingSideBlack = false;
+if (move.toRow == 0 && move.toCol == 0) castlingQueenSideBlack = false;
+WhiteToMove^=1;
 
 }
 
