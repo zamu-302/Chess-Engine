@@ -18,6 +18,21 @@ class Piece{
      
 };
 
+enum class PieceType{
+None,
+Rook,
+Bishop,
+Queen,
+King,
+Pawn,
+Knight
+};
+enum class Color{
+    None,
+    White,
+    Black
+};
+
 enum class MoveType{
     Normal,
     KingSideCastle,

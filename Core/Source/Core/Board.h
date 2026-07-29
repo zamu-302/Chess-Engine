@@ -11,6 +11,7 @@ void LoadFEN(const std::string & fen);
 std::string toFEN()const;
 
 Piece getPiece(int row,int col) const;
+
 void Makemove(const Move& move);
 void unMakeMove(const Move& move);
 bool getTurn()const;
@@ -22,8 +23,9 @@ std::pair<bool, bool> getCastlingRights() const;
 GameState() {
     LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 }
-private:
 
+Piece board;
+private:
 bool WhiteToMove=true;
 bool castlingKingSideWhite=true;
 bool castlingQueenSideWhite=true;
@@ -33,4 +35,6 @@ int enPassantTargetRow=-1;
 int enPassantTargetcol=-1;
 int fullMoveClock=1;
 int halfMoveClock=0;
+void setPiece(int square,PieceType piece,Color color);
+
 };

@@ -10,8 +10,8 @@
 Piece GameState::getPiece(int row,int col)const{
     return board[row][col];
 }
-std::pair<bool, bool> GameState::getCastlingRights(Color c) const{
-    if(c==Color::Black){
+std::pair<bool, bool> GameState::getCastlingRights() const{
+    if(!WhiteToMove){
         return {castlingKingSideBlack,castlingQueenSideBlack};
     }
     return {castlingKingSideWhite,castlingQueenSideWhite};
@@ -23,18 +23,8 @@ int GameState::getEnPassantTargetcol()const{
 int GameState::getEnPassantTargetrow()const {
     return enPassantTargetRow;
 }
-Color GameState::getTurn()const{
-    if(WhiteToMove){
-        return Color::White;
-    }
-    return Color::Black;
-}
-Color checkColor(char c)  {
-    if (!std::islower(c)){
-        return Color::White;
-    }
-    return Color::Black;
-}
+
+
 
 void GameState::Makemove(const Move &move){
     bool flag=false;
@@ -148,32 +138,84 @@ std::vector<std::string> split(const std::string&str,char delimter){
     return parts;
 }
 
-
-PieceType charToPiece(char c){
+Color getColor(char c){
+    if(islower(c)){
+        return Color::Black;
+    }
+    return Color::White;
+}
+PieceType getType(char c){
     switch (c)
     {
-    case 'R':
-    case 'r':
-        return PieceType::Rook;
-    case 'n':
-    case 'N':
-        return PieceType::Knight;
-    case 'K':
-    case 'k':
-        return PieceType::King;
-    case 'Q':
-    case 'q':
-        return PieceType::Queen;
-    case 'B':
-    case 'b':
-        return PieceType::Bishop;
-    case 'P':
-    case 'p':
-        return PieceType::Pawn;
+    case 'r':case 'R': return PieceType::Rook;
+    case 'q':case 'Q': return PieceType::Queen;
+    case 'P':case 'p': return PieceType::Pawn;
+    case 'k':case 'K': return PieceType::King;
+    case 'N':case 'n': return PieceType::Knight;
+    case 'b':case 'B': return PieceType::Bishop;
+    
     default:
-        return PieceType::None;
+        break;
     }
 }
+void GameState::setPiece(int square,PieceType type,Color color){
+uint64_t bit=1ULL<<square;
+
+if(color==Color::White){
+    switch (type)
+    {
+    case PieceType::Pawn:
+        board.whitePawn|=bit;
+        break;
+    case PieceType::Queen:
+        board.whiteQueen|=bit;
+        break;
+    case PieceType::King:
+        board.whiteKing|=bit;
+        break;
+    case PieceType::Rook:
+        board.whiteRook|=bit;
+        break;
+    case PieceType::Bishop:
+        board.whiteBishop|=bit;
+        break;
+    case PieceType::Knight:
+        board.whiteKnight|=bit;
+        break;
+    default:
+        break;
+    }
+
+}
+else{
+    switch (type)
+    {
+    case PieceType::Pawn:
+        board.blackPawn|=bit;
+        break;
+    case PieceType::Queen:
+        board.blackQueen|=bit;
+        break;
+    case PieceType::King:
+        board.blackKing|=bit;
+        break;
+    case PieceType::Rook:
+        board.blackRook|=bit;
+        break;
+    case PieceType::Bishop:
+        board.blackBishop|=bit;
+        break;
+    case PieceType::Knight:
+        board.blackKnight|=bit;
+        break;
+    default:
+        break;
+    }
+}
+
+}
+
+
 
 bool GameState::inCheck()const {
     std::vector<Move> moves=generatePseudoLegalMoves(*this);
@@ -189,7 +231,6 @@ bool GameState::inCheck()const {
 }
 
 void GameState::LoadFEN(const std::string &fen){
-    std::fill(&board[0][0], &board[0][0] + 64, Piece{PieceType::None,Color::None});//resets the postions everytime LoadFEN is called
     std::vector<std::string> parts=split(fen,' ');
     std::string pos=parts[0];
     int row=0;
@@ -203,9 +244,10 @@ void GameState::LoadFEN(const std::string &fen){
             col+=(pos[j]-'0');
         }
         else{
-            Color color=checkColor(pos[j]);
-            PieceType piece= charToPiece(pos[j]);
-            board[row][col]=Piece{piece,color};
+            Color color=getColor(pos[j]);
+            PieceType type=getType(pos[j]);
+            int square=row*8+col;
+            setPiece(square,type,color);
             col++;
         }
         }
