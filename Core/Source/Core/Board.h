@@ -16,7 +16,7 @@ void Makemove(const Move& move);
 void UndoMove();
 int getEnPassantTargetcol() const;
 int getEnPassantTargetrow()const ;
-bool inCheck();
+bool inCheck()const;
 std::pair<bool, bool> getCastlingRights(Color c) const;
 GameState() {
     LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");

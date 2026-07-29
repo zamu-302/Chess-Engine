@@ -175,7 +175,7 @@ PieceType charToPiece(char c){
     }
 }
 
-bool GameState::inCheck(){
+bool GameState::inCheck()const {
     std::vector<Move> moves=generatePseudoLegalMoves(*this);
     for(auto move:moves){
         if(move.type==MoveType::Capture||move.type==MoveType::PromotionCapture){

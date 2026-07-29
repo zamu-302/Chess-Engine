@@ -5,13 +5,23 @@
 
 
 int maxi(const GameState& state,int depth){
-    if (depth==1){
-        return Score();
+    std::vector<Move> moves=generateLegalMoves(state);
+   
+    if (moves.empty()) {
+        if (state.inCheck()) {
+            return -100000 + depth;  
+        } else {
+            return 0;  
+        }
+    }
+    if(depth==0){
+        return evaluate(state);
     }
     int max=std::numeric_limits<int>::min();
-    std::vector<Move> moves= generateLegalMoves(state);
     for(const auto& move:moves){
-        int score=mini(state,depth-1);
+        GameState newstate=state;
+        newstate.Makemove(move);
+        int score=mini(newstate,depth-1);
         if(score>max){
             max=score;
         }
@@ -20,13 +30,24 @@ int maxi(const GameState& state,int depth){
     return max;
 }
 int mini(const GameState& state, int depth){
-    if(depth==1){
-        return -Score();
+    std::vector<Move> moves=generateLegalMoves(state);
+    
+    if (moves.empty()) {
+        if (state.inCheck()) {
+            return 100000 - depth;  
+        } else {
+            return 0;  
+        }
+    }
+    if(depth==0){
+        return evaluate(state);
     }
     int min=std::numeric_limits<int>::max();
-    std::vector<Move> moves=generateLegalMoves(state);
+    
     for(const auto&move:moves){
-        int score=maxi(state,depth-1);
+        GameState newstate=state;
+        newstate.Makemove(move);
+        int score=maxi(newstate,depth-1);
         if(score<min){
             min=score;
         }

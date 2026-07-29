@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include "Board.h"
-int Score();
+int evaluate(const GameState& state);
 
 
 
