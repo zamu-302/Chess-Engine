@@ -5,5 +5,6 @@
 #include "types.h"
 
 int maxi(const GameState& state,int depth);
-int min(const GameState& state,int depth);
+int mini(const GameState& state,int depth);
 int alphaBetaPruning(const GameState& state,int depth);
+Move selectBestMove(const GameState& state, int depth);
