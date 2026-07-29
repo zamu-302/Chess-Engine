@@ -110,7 +110,7 @@ int main()
 	{
 		if (line == "uci")
 		{
-			std::cout << "id name MinimalRandom\n";
+			std::cout << "id name StockFishofOurHeart\n";
 			std::cout << "id author AFROCHEM\n";
 			std::cout << "uciok\n";
 		}
