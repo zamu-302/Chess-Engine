@@ -5,117 +5,46 @@ bool checkBound(int row, int col) {
     return row >= 0 && row < 8 && col >= 0 && col < 8;
 }
 
-void generatePawnMoves(const GameState & state,int row,int col,std::vector<Move> &moves){
-// Blacks turn 
-if((state.getTurn()==Color::Black)){
+void generatePawnMoves(GameState& state,std::vector<Move> &moves,Color color){
 
-    if((checkBound(row+1,col))&&(state.getPiece(row+1,col).type==PieceType::None)){
-        if(row+1==7){
-            for(auto p:{PieceType::Knight,PieceType::Bishop,PieceType::Queen,PieceType::Rook}){
-                moves.push_back({row,col,row+1,col,MoveType::Promotion,p});
-            }
-            }
-        else{
-            moves.push_back({row,col,row+1,col});
-        }
-    
-    
-    //intial 2 space move
-    if ((row==1)&&(state.getPiece(row+2,col).type==PieceType::None)){
-        moves.push_back({row,col,row+2,col});
+int direction=(color==Color::White)? -8:8;
+int start_row=(color==Color::White)? 6:1;
+int promotionSquare=(color==Color::White)? 0:7;
+uint64_t bits=(color==Color::White)? state.board.whitePawn:state.board.blackPawn;
+
+
+while(bits){
+
+int from=__builtin_ctzll(bits);
+int row=from/8;
+int col=from%8; //because row*8+col=square
+
+//move one
+int to;
+if(state.isSquareEmpty(from+direction)){
+    to=from+direction;
+    moves.emplace_back(from,to);
+    if(state.isSquareEmpty(to+direction)){
+        to+=direction;
+        moves.emplace_back(from,to);
     }
 }
 
-    //capturing if it's in row+1,col+-1 
-    if((checkBound(row+1,col-1))&&(state.getPiece(row+1,col-1).color==Color::White)){
-        if(row==6){
-            for(auto p:{PieceType::Knight,PieceType::Bishop,PieceType::Queen,PieceType::Rook}){
-                moves.push_back({row,col,row+1,col-1,MoveType::PromotionCapture,p});
-        }
-        }
-        else{
-        moves.push_back({row,col,row+1,col-1,MoveType::Capture});
-    }
-    }
-    if (checkBound(row+1,col+1)&&(state.getPiece(row+1,col+1).color==Color::White)){
-        if(row==6){
-            for(auto p:{PieceType::Knight,PieceType::Bishop,PieceType::Queen,PieceType::Rook}){
-                moves.push_back({row,col,row+1,col+1,MoveType::PromotionCapture,p});
-        }
-        }
-        else{
-        moves.push_back({row,col,row+1,col+1,MoveType::Capture});
-    }
-        
-    }
-    //enpassant
-    if (row+1==state.getEnPassantTargetrow()){
-        if((checkBound(row,col+1))&&(state.getPiece(row,col+1).color==Color::White)&&(col+1==state.getEnPassantTargetcol())){
-            moves.push_back({row,col,row+1,col+1,MoveType::Enpassant});
-        }
-        else if((checkBound(row,col-1))&&(state.getPiece(row,col-1).color==Color::White)&&(col-1==state.getEnPassantTargetcol())){
-            moves.push_back({row,col,row+1,col-1,MoveType::Enpassant});
-        }
-    }
-    
-     
-}
+captureRow=
+captureCol=
+else if(state.isEnemyPiece(from))
 
-//Whites turn
-else if((state.getTurn()==Color::White)){
-    if ((checkBound(row-1,col))&&(state.getPiece(row-1,col).type==PieceType::None)){
-        if(row-1==0){
-            for(auto p:{PieceType::Bishop,PieceType::Queen,PieceType::Knight,PieceType::Rook}){
-            moves.push_back({row,col,row-1,col,MoveType::Promotion,p});
-        }}
-        else{
-        moves.push_back({row,col,row-1,col});
-        }
-    if((row==6)&&(state.getPiece(row-2,col).type==PieceType::None)){
-    moves.push_back({row,col,row-2,col});// 2 moves up before it makes any move...
-    }
-}
-     //capturing if it's in row-1,col+-1 
-    if((checkBound(row-1,col-1))&&(state.getPiece(row-1,col-1).color==Color::Black)){
-        if(row==1){
-            for(auto p:{PieceType::Knight,PieceType::Bishop,PieceType::Queen,PieceType::Rook}){
-                moves.push_back({row,col,row-1,col-1,MoveType::PromotionCapture,p});
-        }
-        }
-        else{
-        moves.push_back({row,col,row-1,col-1,MoveType::Capture});
-    }
-       
-    }
-    if ((checkBound(row-1,col+1))&&(state.getPiece(row-1,col+1).color==Color::Black)){
-        if(row==1){
-            for(auto p:{PieceType::Knight,PieceType::Bishop,PieceType::Queen,PieceType::Rook}){
-                moves.push_back({row,col,row-1,col+1,MoveType::PromotionCapture,p});
-        }
-        }
-        else{
-        moves.push_back({row,col,row-1,col+1,MoveType::Capture});
-    }
-        
-    }
-    //enpassant
-    if (row-1==state.getEnPassantTargetrow()){
-        if((checkBound(row-1,col+1))&&(state.getPiece(row,col+1).color==Color::Black)&&(col+1==state.getEnPassantTargetcol())){
-            moves.push_back({row,col,row-1,col+1,MoveType::Enpassant});
-        }
-        else if((checkBound(row-1,col-1))&&(state.getPiece(row,col-1).color==Color::Black)&&(col-1==state.getEnPassantTargetcol())){
-            moves.push_back({row,col,row-1,col-1,MoveType::Enpassant});
 
-        }
-    }
-    
-}
 
 
 
 
 }
-void generateKnightMoves(const GameState& state, int row,int col,std::vector<Move> &moves){
+
+
+
+}
+void generateKnightMoves(std::vector<Move> &moves,Color color){
 int offsets[8][2] = {
         {2, 1}, {2, -1},
         {-2, 1}, {-2, -1},
@@ -144,7 +73,7 @@ int offsets[8][2] = {
 
 
 }
-void generateKingMoves(const GameState& state, int row,int col, std::vector<Move>& moves){
+void generateKingMoves(std::vector<Move> &moves,Color color){
     int offsets[8][2] = {
         {1, 0}, {1, -1},
         {1, 1}, {0, -1},
@@ -207,7 +136,7 @@ void generateKingMoves(const GameState& state, int row,int col, std::vector<Move
     }
 
 }
-void generateRookMoves(const GameState& state, int row, int col,std::vector<Move>&moves){
+void generateRookMoves(std::vector<Move> &moves,Color color){
     int offset[4][2]{{1,0},{-1,0},{0,1},{0,-1}};
     for(int i=0;i<4;++i){
         int curRow=offset[i][0]+row;
@@ -229,7 +158,7 @@ void generateRookMoves(const GameState& state, int row, int col,std::vector<Move
         }
     }
 }
-void generateBishopMoves(const GameState& state, int row,int col,std::vector<Move>& moves){
+void generateBishopMoves(std::vector<Move> &moves,Color color){
     int offset[4][2]{{1,1},{1,-1},{-1,1},{-1,-1}};
     for(int i=0;i<4;i++){
     int curRow=offset[i][0]+row;
@@ -251,53 +180,39 @@ void generateBishopMoves(const GameState& state, int row,int col,std::vector<Mov
     }
     
 }
-void generateQueenMoves(const GameState& state, int row, int col,std::vector<Move>& moves){
+void generateQueenMoves(std::vector<Move> &moves,Color color){
     generateBishopMoves(state,row,col,moves);
     generateRookMoves(state,row,col,moves);
 }
 
 std::vector<Move> generatePseudoLegalMoves(const GameState& state){
-std::vector<Move> moves;
-for(int row=0;row<8;row++){
-    for (int col=0;col<8;col++){
-        Piece currPiece=state.getPiece(row,col);
-        if(currPiece.type==PieceType::None||((currPiece.color!=state.getTurn()))){
-            continue;
-        }
-        //generate moves
-        PieceType p=currPiece.type;
-        switch (p)
-        {
-        case PieceType::Pawn:
-            generatePawnMoves(state,row,col,moves);
-            break;
-        case PieceType::Knight:
-            generateKnightMoves(state,row,col,moves);
-            break;
-        case PieceType::King:
-            generateKingMoves(state,row,col,moves);
-            break;
-        case PieceType::Queen:
-            generateQueenMoves(state,row,col,moves);
-            break;
-        case PieceType::Rook:
-            generateRookMoves(state,row,col,moves);
-            break;
-        case PieceType::Bishop:
-            generateBishopMoves(state,row,col,moves);
-            break;
-        
-        default:
-            break;
-        }
-        
-
-    }
-   
+std::vector<Move> move;
+if(state.WhiteToMove){
+    
+    generateBishopMoves(GameState& state,move,Color::White);
+    generatePawnMoves(move,Color::White);
+    generateKnightMoves(move,Color::White);
+    generateKingMoves(move,Color::White);
+    generateRookMoves(move,Color::White);
+    generateQueenMoves(move,Color::White);
+    
 }
+else{
+    generateBishopMoves(move,Color::Black);
+    generatePawnMoves(move,Color::Black);
+    generateKnightMoves(move,Color::Black);
+    generateKingMoves(move,Color::Black);
+    generateRookMoves(move,Color::Black);
+    generateQueenMoves(move,Color::Black);
 
 
- return moves;
+
+}
+   
+
+
+
+ return move;
 
 
 }

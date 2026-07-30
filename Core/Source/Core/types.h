@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <iostream>
-class Piece{
+class Postion{
     public:
     uint64_t whitePawn;  
     uint64_t whiteQueen;  
@@ -16,6 +16,10 @@ class Piece{
     uint64_t blackKnight;  
     uint64_t blackBishop;  
      
+};
+struct Piece{
+    PieceType type;
+    Color color;
 };
 
 enum class PieceType{
@@ -44,10 +48,8 @@ enum class MoveType{
 };
 
 struct Move{
-    int fromRow;
-    int fromCol;
-    int toRow;
-    int toCol;
+    int from;
+    int to;
     MoveType type=MoveType::Normal;
-    Piece PromotionPiece;
+    PieceType PromotionPiece;
 };

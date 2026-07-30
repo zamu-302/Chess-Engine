@@ -8,7 +8,42 @@
 #include <algorithm>
 
 Piece GameState::getPiece(int row,int col)const{
-    return board[row][col];
+    int square=row*8+col;
+    uint64_t mask=1ULL<<square;
+    // white piece
+    if(board.whiteBishop&mask) return {PieceType::Bishop,Color::White};
+    else if(board.whiteKing&mask) return {PieceType::King,Color::White};
+    else if(board.whiteQueen&mask) return {PieceType::Queen,Color::White};
+    else if(board.whitePawn&mask) return {PieceType::Pawn,Color::White};
+    else if(board.whiteKnight&mask) return {PieceType::Knight,Color::White};
+    else if(board.whiteRook&mask) return {PieceType::Rook,Color::White};
+
+    else if(board.blackKing&mask) return {PieceType::King,Color::Black};
+    else if(board.blackQueen&mask) return {PieceType::Queen,Color::Black};
+    else if(board.blackBishop&mask) return {PieceType::Bishop,Color::Black};
+    else if(board.blackKnight&mask) return {PieceType::Knight,Color::Black};
+    else if(board.blackPawn&mask) return {PieceType::Pawn,Color::Black};
+    else if(board.blackRook&mask) return {PieceType::Rook,Color::Black};
+    else return {PieceType::None,Color::None};
+
+}
+
+uint64_t GameState::blackPiece(){
+    board.blackBishop|board.blackKing|board.blackKnight|board.blackPawn|board.blackQueen|board.blackRook;
+}
+uint64_t GameState::whitePiece(){
+    board.whiteBishop|board.whiteKing|board.whiteKnight|board.whitePawn|board.whiteQueen|board.whiteRook;
+}
+bool GameState::isSquareEmpty(int pos){
+    uint64_t mask=1Ull<<pos;
+    return mask&(blackPiece()|whitePiece());
+}
+bool GameState::isEnemyPiece(int pos, Color color){
+    uint64_t mask=1Ull<<pos;
+    if (color==Color::White){
+        return mask&blackPiece();
+    }
+    return mask&whitePiece();
 }
 std::pair<bool, bool> GameState::getCastlingRights() const{
     if(!WhiteToMove){
@@ -137,7 +172,6 @@ std::vector<std::string> split(const std::string&str,char delimter){
     parts.push_back(part);
     return parts;
 }
-
 Color getColor(char c){
     if(islower(c)){
         return Color::Black;
