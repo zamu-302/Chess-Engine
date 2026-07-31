@@ -33,14 +33,14 @@ void KingLookupTabel(){
         int r=sq/8;
         int c=sq%8;
 
-        if(checkBound(r+1,c))attack!=1ULL<<(sq+8);
-        if(checkBound(r+1,c+1))attack!=1ULL<<(sq+9);
-        if(checkBound(r,c+1))attack!=1ULL<<(sq+1);
-        if(checkBound(r-1,c))attack!=1ULL<<(sq-8);
-        if(checkBound(r+1,c-1))attack!=1ULL<<(sq+7);
-        if(checkBound(r,c-1))attack!=1ULL<<(sq-1);
-        if(checkBound(r-1,c-1))attack!=1ULL<<(sq-9);
-        if(checkBound(r-1,c+1))attack!=1ULL<<(sq-7);
+        if(checkBound(r+1,c))attack|=1ULL<<(sq+8);
+        if(checkBound(r+1,c+1))attack|=1ULL<<(sq+9);
+        if(checkBound(r,c+1))attack|=1ULL<<(sq+1);
+        if(checkBound(r-1,c))attack|=1ULL<<(sq-8);
+        if(checkBound(r+1,c-1))attack|=1ULL<<(sq+7);
+        if(checkBound(r,c-1))attack|=1ULL<<(sq-1);
+        if(checkBound(r-1,c-1))attack|=1ULL<<(sq-9);
+        if(checkBound(r-1,c+1))attack|=1ULL<<(sq-7);
 
         kingAttacks[sq]=attack;
          
