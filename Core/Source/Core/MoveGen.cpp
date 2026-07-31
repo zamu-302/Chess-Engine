@@ -86,19 +86,11 @@ int enpassantRow=state.getEnPassantTargetrow();
 int enpassantCol=state.getEnPassantTargetcol();
 int square=enpassantRow*8+enpassantCol;
 uint64_t mask=1Ull<<square;
-uint64_t enpassRight=rightCap&mask;
-uint64_t enpassLeft=leftCap&mask;
-while(enpassRight){
-    int to=__builtin_ctzll(enpassRight);
-    moves.emplace_back(to+7,to,MoveType::Enpassant);
-
-    enpassRight&=enpassRight-1;
-}
-while(enpassLeft){
-    int to=__builtin_ctzll(enpassLeft);
-    moves.emplace_back(to+9,to,MoveType::Enpassant);
-
-    enpassLeft&=enpassLeft-1;
+uint64_t enpassRight=((pawns&NOT_H_FILE)>>7)&mask;
+uint64_t enpassLeft=((pawns&NOT_A_FILE)>>9)&mask;
+if(enpassantRow!=-1){
+while(enpassRight){ int to=__builtin_ctzll(enpassRight); moves.emplace_back(to+7,to,MoveType::Enpassant); enpassRight&=enpassRight-1;}
+while(enpassLeft){ int to=__builtin_ctzll(enpassLeft); moves.emplace_back(to+9,to,MoveType::Enpassant); enpassLeft&=enpassLeft-1;}
 }
 }
 //black
@@ -172,21 +164,12 @@ int enpassantRow=state.getEnPassantTargetrow();
 int enpassantCol=state.getEnPassantTargetcol();
 int square=enpassantRow*8+enpassantCol;
 uint64_t mask=1Ull<<square;
-uint64_t enpassRight=rightCap&mask;
-uint64_t enpassLeft=leftCap&mask;
-while(enpassRight){
-    int to=__builtin_ctzll(enpassRight);
-    moves.emplace_back(to-9,to,MoveType::Enpassant);
-
-    enpassRight&=enpassRight-1;
+uint64_t enpassRight=((pawns&NOT_A_FILE)<<9)&mask;
+uint64_t enpassLeft=((pawns&NOT_H_FILE)<<7)&mask;
+if(enpassantRow!=-1){
+while(enpassRight){ int to=__builtin_ctzll(enpassRight); moves.emplace_back(to-9,to,MoveType::Enpassant); enpassRight&=enpassRight-1;}
+while(enpassLeft){ int to=__builtin_ctzll(enpassLeft); moves.emplace_back(to-7,to,MoveType::Enpassant); enpassLeft&=enpassLeft-1; }
 }
-while(enpassLeft){
-    int to=__builtin_ctzll(enpassLeft);
-    moves.emplace_back(to-7,to,MoveType::Enpassant);
-
-    enpassLeft&=enpassLeft-1;  
-}
-
 }
 }
 
@@ -219,6 +202,7 @@ void generateKingMoves(GameState& state,std::vector<Move> &moves,Color color){
 const uint64_t ownPieces=(color==Color::White)?state.whitePiece(): state.blackPiece();
 uint64_t king=(color==Color::White)?state.board.whiteKing: state.board.blackKing;
 const uint64_t enemyPieces=(color==Color::White)?state.blackPiece(): state.whitePiece();
+int casfrom=__builtin_ctzll(king);
 while(king){
     int from=__builtin_ctzll(king);
     uint64_t target=kingAttacks[from]& ~ownPieces;
@@ -241,17 +225,17 @@ while(king){
         bool kingside=rights.first;
         bool queenside=rights.second;
         if(kingside){
-           int from=__builtin_ctzll(king);
-           uint64_t mask= (1ULL << (from + 1)) | (1ULL << (from + 2));
+           
+           uint64_t mask= (1ULL << (casfrom + 1)) | (1ULL << (casfrom + 2));
            if(!(mask&(ownPieces|enemyPieces))){
-            moves.emplace_back(from,from+2,MoveType::KingSideCastle);
+            moves.emplace_back(casfrom,casfrom+2,MoveType::KingSideCastle);
            }
         }
         if(queenside){
-           int from=__builtin_ctzll(king);
-           uint64_t mask= (1ULL << (from - 1)) | (1ULL << (from - 2)) |(1ULL<<(from-3));
+           
+           uint64_t mask= (1ULL << (casfrom - 1)) | (1ULL << (casfrom - 2)) |(1ULL<<(casfrom-3));
            if(!(mask&(ownPieces|enemyPieces))){
-            moves.emplace_back(from,from-2,MoveType::QueenSideCastle);
+            moves.emplace_back(casfrom,casfrom-2,MoveType::QueenSideCastle);
            }
             
         }
