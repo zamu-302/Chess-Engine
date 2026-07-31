@@ -3,6 +3,7 @@
 #include <vector>
 #include "Board.h"
 #include "types.h"
+#include "Lookuptabel.h"
 
 std::vector<Move> generatePseudoLegalMoves(const GameState& state);
 std::vector<Move> generateLegalMoves(const GameState& state);
@@ -10,9 +11,9 @@ std::vector<Move> generateLegalMoves(const GameState& state);
 
 
 //helpers
-void generatePawnMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
-void generateQueenMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
-void generateRookMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
-void generateKnightMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
-void generateBishopMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
-void generateKingMoves(const GameState& state, int row, int col,std::vector<Move>& moves);
+void generatePawnMoves(const GameState& state,std::vector<Move>& moves,Color color);
+void generateQueenMoves(const GameState& state,std::vector<Move>& moves,Color color);
+void generateRookMoves(const GameState& state,std::vector<Move>& moves,Color color);
+void generateKnightMoves(const GameState& state,std::vector<Move>& moves,Color color);
+void generateBishopMoves(const GameState& state,std::vector<Move>& moves, Color color);
+void generateKingMoves(const GameState& state,std::vector<Move>& moves, Color color);
