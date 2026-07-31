@@ -8,41 +8,76 @@ bool checkBound(int row, int col) {
 void generatePawnMoves(GameState& state,std::vector<Move> &moves,Color color){
 
 int direction=(color==Color::White)? -8:8;
-int start_row=(color==Color::White)? 6:1;
-int promotionSquare=(color==Color::White)? 0:7;
-uint64_t bits=(color==Color::White)? state.board.whitePawn:state.board.blackPawn;
+uint64_t pawns=(color==Color::White)? state.board.whitePawn:state.board.blackPawn;
+const uint64_t NOT_A_FILE = 0xFEFEFEFEFEFEFEFEULL;  
+const uint64_t NOT_H_FILE = 0x7F7F7F7F7F7F7F7FULL; 
+const uint64_t RANK_2 = 0x000000000000FF00ULL;  
+const uint64_t RANK_7 = 0x00FF000000000000ULL;
+const uint64_t Rank_8 = 0xFF00000000000000ULL;
+const uint64_t Rank_1 = 0x00000000000000FFULL;
+uint64_t enemyPieces=(color==Color::White)? state.blackPiece():state.whitePiece();
+uint64_t emptySquare=~(state.blackPiece()|state.whitePiece());
+
+int from=__builtin_ctzll(pawns);
+if(color==Color::White)
+{
+uint64_t push=((pawns)>>8) & emptySquare;
+
+uint64_t promoPush   = push & Rank_1;
+uint64_t normalPush  = push & ~Rank_1;
 
 
-while(bits){
 
-int from=__builtin_ctzll(bits);
-int row=from/8;
-int col=from%8; //because row*8+col=square
 
-//move one
-int to;
-if(state.isSquareEmpty(from+direction)){
-    to=from+direction;
-    moves.emplace_back(from,to);
-    if(state.isSquareEmpty(to+direction)){
-        to+=direction;
-        moves.emplace_back(from,to);
+uint64_t doublePush=((pawns&RANK_7)>>16) & emptySquare;
+uint64_t leftCap  = ((pawns & NOT_A_FILE) >> 9) & enemyPieces;
+
+uint64_t promoCapL   = leftCap & Rank_1;
+uint64_t normalCapL  = leftCap  & ~Rank_1;
+
+uint64_t rightCap = ((pawns & NOT_H_FILE) >> 7) & enemyPieces;
+
+uint64_t promoCapR   = rightCap & Rank_1;
+uint64_t normalCapR  = rightCap & ~Rank_1;
+
+while(normalPush){
+    int to=__builtin_ctzll(normalPush);
+    moves.emplace_back(to+8,to);
+    normalPush&=normalPush-1;
+}
+while(promoPush){
+    int to=__builtin_ctzll(promoPush);
+    for(PieceType p:{PieceType::Bishop,PieceType::Knight,PieceType::Queen,PieceType::Rook}){
+        moves.emplace_back(to+8,to,MoveType::Promotion,p);
     }
+    promoPush&=promoPush-1;
 }
 
-captureRow=
-captureCol=
-else if(state.isEnemyPiece(from))
+while(promoCapL){
+int to=__builtin_ctzll(promoCapL);
+ for(PieceType p:{PieceType::Bishop,PieceType::Knight,PieceType::Queen,PieceType::Rook}){
+        moves.emplace_back(to+9,to,MoveType::PromotionCapture,p);
+    }
 
+promoCapL&=promoCapL-1;
+}
+while(promoCapR){
+int to=__builtin_ctzll(promoCapR);
+ for(PieceType p:{PieceType::Bishop,PieceType::Knight,PieceType::Queen,PieceType::Rook}){
+        moves.emplace_back(to+7,to,MoveType::PromotionCapture,p);
+    }
 
+promoCapR&=promoCapR-1;
+}
+while(doublePush){
 
-
-
+    int to=__builtin_ctzll(doublePush);
+    moves.emplace_back(to+16,to);
+    doublePush&=doublePush-1;
 
 }
 
-
-
+}
 }
 void generateKnightMoves(std::vector<Move> &moves,Color color){
 int offsets[8][2] = {
