@@ -1,6 +1,9 @@
 #include <iostream>
 #include "MoveGen.h"
 #include <vector>
+bool checkBound(int row, int col) {
+    return row >= 0 && row < 8 && col >= 0 && col < 8;
+}
 
 
 void generatePawnMoves(GameState& state,std::vector<Move> &moves,Color color){
@@ -245,28 +248,101 @@ while(king){
     
 
 
-void generateRookMoves(std::vector<Move> &moves,Color color){
-    int offset[4][2]{{1,0},{-1,0},{0,1},{0,-1}};
-    for(int i=0;i<4;++i){
-        int curRow=offset[i][0]+row;
-        int curCol=offset[i][1]+col;
+void generateRookMoves(GameState& state,std::vector<Move> &moves,Color color){
+    uint64_t enemyPieces=(color==Color::White)? state.blackPiece():state.whitePiece();
+    uint64_t emptySquare=~(state.blackPiece()|state.whitePiece());
+    uint64_t Rook=(color==Color::White)? state.board.whiteRook:state.board.blackRook;
+    int offset[2]={8,1};
 
-        while(checkBound(curRow,curCol)){
-            if(state.getPiece(curRow,curCol).type==PieceType::None){
-                moves.push_back({row,col,curRow,curCol});
+    //basically we take the lsb in the rook and shift it in all 4 direction
+    while(Rook){
+        int from=__builtin_ctzll(Rook);
+        int row=from/8;
+        int col=from%8;
+        int to=from;
+        //up
+        while(checkBound(row+1,col)){
+            to+=offset[0];
+            uint64_t mask=1ULL<<to;
+            if(mask&emptySquare){
+                moves.emplace_back(from,to);
+                row++;
+
             }
-            else if(state.getPiece(curRow,curCol).color!=state.getTurn()){
-                moves.push_back({row,col,curRow,curCol,MoveType::Capture});
+            else if(mask&enemyPieces){
+                moves.emplace_back(from,to,MoveType::Capture);
                 break;
             }
             else{
                 break;
             }
-            curRow+=offset[i][0];
-            curCol+=offset[i][1];
         }
+        row=from/8;
+        to=from;
+        //down
+        while(checkBound(row-1,col)){
+            to-=offset[0];
+            uint64_t mask=1ULL<<to;
+            if(mask&emptySquare){
+                moves.emplace_back(from,to);
+                row--;
+
+            }
+            else if(mask&enemyPieces){
+                moves.emplace_back(from,to,MoveType::Capture);
+                break;
+            }
+            else{
+                break;
+            }
+        }
+        row=from/8;
+        to=from;
+        //right
+        while(checkBound(row,col+1)){
+            to+=offset[1];
+            uint64_t mask=1ULL<<to;
+            if(mask&emptySquare){
+                moves.emplace_back(from,to);
+                col++;
+
+            }
+            else if(mask&enemyPieces){
+                moves.emplace_back(from,to,MoveType::Capture);
+                break;
+            }
+            else{
+                break;
+            }
+        }
+        col=from%8;
+        to=from;
+        //left
+        while(checkBound(row,col-1)){
+            to-=offset[1];
+            uint64_t mask=1ULL<<to;
+            if(mask&emptySquare){
+                moves.emplace_back(from,to);
+                col--;
+
+            }
+            else if(mask&enemyPieces){
+                moves.emplace_back(from,to,MoveType::Capture);
+                break;
+            }
+            else{
+                break;
+            }
+        }
+
+        
+
+        Rook&=Rook-1;
+
     }
+   
 }
+
 void generateBishopMoves(std::vector<Move> &moves,Color color){
     int offset[4][2]{{1,1},{1,-1},{-1,1},{-1,-1}};
     for(int i=0;i<4;i++){
