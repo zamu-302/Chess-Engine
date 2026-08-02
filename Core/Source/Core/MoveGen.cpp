@@ -4,7 +4,17 @@
 bool checkBound(int row, int col) {
     return row >= 0 && row < 8 && col >= 0 && col < 8;
 }
+inline uint64_t getRookAttacks(int sq, uint64_t occupied) {
+    uint64_t blockers = occupied & rookMask[sq];
+    int index = (int)((blockers * rookMagicnum[sq]) >> (64 - ROOK_BITS[sq]));
+    return rookAttacks[sq][index];
+}
 
+inline uint64_t getBishopAttacks(int sq, uint64_t occupied) {
+    uint64_t blockers = occupied & bishopMask[sq];
+    int index = (int)((blockers * bishopMagicnum[sq]) >> (64 - BISHOP_BITS[sq]));
+    return bishopAttacks[sq][index];
+}
 
 void generatePawnMoves(GameState& state,std::vector<Move> &moves,Color color){
 
@@ -92,8 +102,8 @@ uint64_t mask=1Ull<<square;
 uint64_t enpassRight=((pawns&NOT_H_FILE)>>7)&mask;
 uint64_t enpassLeft=((pawns&NOT_A_FILE)>>9)&mask;
 if(enpassantRow!=-1){
-while(enpassRight){ int to=__builtin_ctzll(enpassRight); moves.emplace_back(to+7,to,MoveType::Enpassant); enpassRight&=enpassRight-1;}
-while(enpassLeft){ int to=__builtin_ctzll(enpassLeft); moves.emplace_back(to+9,to,MoveType::Enpassant); enpassLeft&=enpassLeft-1;}
+if(enpassRight){ int to=__builtin_ctzll(enpassRight); moves.emplace_back(to+7,to,MoveType::Enpassant); enpassRight&=enpassRight-1;}
+if(enpassLeft){ int to=__builtin_ctzll(enpassLeft); moves.emplace_back(to+9,to,MoveType::Enpassant); enpassLeft&=enpassLeft-1;}
 }
 }
 //black
@@ -170,8 +180,8 @@ uint64_t mask=1Ull<<square;
 uint64_t enpassRight=((pawns&NOT_A_FILE)<<9)&mask;
 uint64_t enpassLeft=((pawns&NOT_H_FILE)<<7)&mask;
 if(enpassantRow!=-1){
-while(enpassRight){ int to=__builtin_ctzll(enpassRight); moves.emplace_back(to-9,to,MoveType::Enpassant); enpassRight&=enpassRight-1;}
-while(enpassLeft){ int to=__builtin_ctzll(enpassLeft); moves.emplace_back(to-7,to,MoveType::Enpassant); enpassLeft&=enpassLeft-1; }
+if(enpassRight){ int to=__builtin_ctzll(enpassRight); moves.emplace_back(to-9,to,MoveType::Enpassant); enpassRight&=enpassRight-1;}
+if(enpassLeft){ int to=__builtin_ctzll(enpassLeft); moves.emplace_back(to-7,to,MoveType::Enpassant); enpassLeft&=enpassLeft-1; }
 }
 }
 }
@@ -249,107 +259,69 @@ while(king){
 
 
 void generateRookMoves(GameState& state,std::vector<Move> &moves,Color color){
-    uint64_t enemyPieces=(color==Color::White)? state.blackPiece():state.whitePiece();
-    uint64_t emptySquare=~(state.blackPiece()|state.whitePiece());
+    uint64_t ownPieces=(color==Color::White)? state.whitePiece():state.blackPiece();
+    uint64_t occupied=(state.blackPiece()|state.whitePiece());
     uint64_t Rook=(color==Color::White)? state.board.whiteRook:state.board.blackRook;
-    int offset[2]={8,1};
-
-    //basically we take the lsb in the rook and shift it in all 4 direction
+    uint64_t enemyPieces=(color==Color::White)? state.blackPiece():state.whitePiece();
+   
     while(Rook){
         int from=__builtin_ctzll(Rook);
-        int row=from/8;
-        int col=from%8;
-        int to=from;
-        //up
-        while(checkBound(row+1,col)){
-            to+=offset[0];
-            uint64_t mask=1ULL<<to;
-            if(mask&emptySquare){
-                moves.emplace_back(from,to);
-                row++;
-
-            }
-            else if(mask&enemyPieces){
-                moves.emplace_back(from,to,MoveType::Capture);
-                break;
-            }
-            else{
-                break;
-            }
+        uint64_t attacks=generate_rook_attack(from,occupied)&~ownPieces;
+        while(attacks){
+            int to=__builtin_ctzll(attacks);
+            MoveType type=(enemyPieces& (1ULL<<to))?MoveType::Capture :MoveType::Normal;
+            moves.emplace_back(from,to,type);
+            attacks&=attacks-1;
         }
-        row=from/8;
-        to=from;
-        //down
-        while(checkBound(row-1,col)){
-            to-=offset[0];
-            uint64_t mask=1ULL<<to;
-            if(mask&emptySquare){
-                moves.emplace_back(from,to);
-                row--;
-
-            }
-            else if(mask&enemyPieces){
-                moves.emplace_back(from,to,MoveType::Capture);
-                break;
-            }
-            else{
-                break;
-            }
-        }
-        row=from/8;
-        to=from;
-        //right
-        while(checkBound(row,col+1)){
-            to+=offset[1];
-            uint64_t mask=1ULL<<to;
-            if(mask&emptySquare){
-                moves.emplace_back(from,to);
-                col++;
-
-            }
-            else if(mask&enemyPieces){
-                moves.emplace_back(from,to,MoveType::Capture);
-                break;
-            }
-            else{
-                break;
-            }
-        }
-        col=from%8;
-        to=from;
-        //left
-        while(checkBound(row,col-1)){
-            to-=offset[1];
-            uint64_t mask=1ULL<<to;
-            if(mask&emptySquare){
-                moves.emplace_back(from,to);
-                col--;
-
-            }
-            else if(mask&enemyPieces){
-                moves.emplace_back(from,to,MoveType::Capture);
-                break;
-            }
-            else{
-                break;
-            }
-        }
-
+        Rook&=Rook-1;
         
 
-        Rook&=Rook-1;
 
     }
-   
 }
 
-void generateBishopMoves(std::vector<Move> &moves,Color color){
+void generateBishopMoves(GameState& state,std::vector<Move> &moves,Color color){
+   uint64_t ownPieces=(color==Color::White)? state.whitePiece():state.blackPiece();
+    uint64_t occupied=(state.blackPiece()|state.whitePiece());
+    uint64_t Bishop=(color==Color::White)? state.board.whiteBishop:state.board.blackBishop;
+    uint64_t enemyPieces=(color==Color::White)? state.blackPiece():state.whitePiece();
    
+    while(Bishop){
+        int from=__builtin_ctzll(Bishop);
+        uint64_t attacks=generate_bishop_attack(from,occupied)&~ownPieces;
+        while(attacks){
+            int to=__builtin_ctzll(attacks);
+            MoveType type=(enemyPieces& (1ULL<<to))?MoveType::Capture :MoveType::Normal;
+            moves.emplace_back(from,to,type);
+            attacks&=attacks-1;
+        }
+        Bishop&=Bishop-1;
+        
+
+
+    }
     
 }
-void generateQueenMoves(std::vector<Move> &moves,Color color){
-    generateBishopMoves(state,row,col,moves);
-    generateRookMoves(state,row,col,moves);
+void generateQueenMoves(GameState& state,std::vector<Move> &moves,Color color){
+   uint64_t ownPieces=(color==Color::White)? state.whitePiece():state.blackPiece();
+    uint64_t occupied=(state.blackPiece()|state.whitePiece());
+    uint64_t Queens=(color==Color::White)? state.board.whiteQueen:state.board.blackQueen;
+    uint64_t enemyPieces=(color==Color::White)? state.blackPiece():state.whitePiece();
+   
+    while(Queens){
+        int from=__builtin_ctzll(Queens);
+        uint64_t attacks=(generate_bishop_attack(from,occupied)|generate_rook_attack(from,occupied))&~ownPieces;
+        while(attacks){
+            int to=__builtin_ctzll(attacks);
+            MoveType type=(enemyPieces& (1ULL<<to))?MoveType::Capture :MoveType::Normal;
+            moves.emplace_back(from,to,type);
+            attacks&=attacks-1;
+        }
+        Queens&=Queens-1;
+        
+
+
+    }
 }
 
 std::vector<Move> generatePseudoLegalMoves(const GameState& state){

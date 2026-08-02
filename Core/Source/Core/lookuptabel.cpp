@@ -74,6 +74,32 @@ constexpr uint64_t rookOccupancy(int sq){
 constexpr bool isInnerBound(int row,int col){
 return (row>0&&row<7)&&(col>0&&col<7);
 }
+void initMagicTables(){
+    for(int sq=0;sq<64;sq++){
+        rookMask[sq]=rookOccupancy(sq);
+        bishopMask[sq]=bishopOccupancy(sq);
+
+        uint64_t mask=rookMask[sq];
+        int bit=ROOK_BITS[sq];
+        uint64_t subset=0;
+        do{
+            int index=(int)((subset*rookMagicnum[sq])>>(64-bit));
+            rookAttacks[sq][index]=generate_rook_attack(sq,subset);
+            subset=(subset-mask)&mask;
+        }
+        while(subset!=0);
+        mask=bishopMask[sq];
+        bit=BISHOP_BITS[sq];
+        subset=0;
+        do{
+            int index=(int)((subset*bishopMagicnum[sq])>>(64-bit));
+            bishopAttacks[sq][index]=generate_bishop_attack(sq,subset);
+            subset=(subset-mask)&mask;
+        }
+        while(subset!=0);
+
+    }
+}
 
 constexpr uint64_t bishopOccupancy(int sq){
     constexpr int offset[4][2]{{1,1},{1,-1},{-1,1},{-1,-1}};
