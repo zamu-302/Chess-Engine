@@ -344,25 +344,7 @@ void generateRookMoves(GameState& state,std::vector<Move> &moves,Color color){
 }
 
 void generateBishopMoves(std::vector<Move> &moves,Color color){
-    int offset[4][2]{{1,1},{1,-1},{-1,1},{-1,-1}};
-    for(int i=0;i<4;i++){
-    int curRow=offset[i][0]+row;
-    int curCol=offset[i][1]+col;
-    while(checkBound(curRow,curCol)){
-        if(state.getPiece(curRow,curCol).type==PieceType::None){
-            moves.push_back({row,col,curRow,curCol});
-        }
-        else if(state.getPiece(curRow,curCol).color!=state.getTurn()){
-            moves.push_back({row,col,curRow,curCol,MoveType::Capture});
-            break;
-        }
-        else{
-            break;
-        }
-        curRow+=offset[i][0];
-        curCol+=offset[i][1];
-        }
-    }
+   
     
 }
 void generateQueenMoves(std::vector<Move> &moves,Color color){
