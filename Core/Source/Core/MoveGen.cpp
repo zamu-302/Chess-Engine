@@ -262,7 +262,7 @@ void generateRookMoves(GameState& state,std::vector<Move> &moves,Color color){
    
     while(Rook){
         int from=__builtin_ctzll(Rook);
-        uint64_t attacks=generate_rook_attack(from,occupied)&~ownPieces;
+        uint64_t attacks=getRookAttacks(from,occupied)&~ownPieces;
         while(attacks){
             int to=__builtin_ctzll(attacks);
             MoveType type=(enemyPieces& (1ULL<<to))?MoveType::Capture :MoveType::Normal;
@@ -283,7 +283,7 @@ void generateBishopMoves(GameState& state,std::vector<Move> &moves,Color color){
    
     while(Bishop){
         int from=__builtin_ctzll(Bishop);
-        uint64_t attacks=generate_bishop_attack(from,occupied)&~ownPieces;
+        uint64_t attacks=getBishopAttacks(from,occupied)&~ownPieces;
         while(attacks){
             int to=__builtin_ctzll(attacks);
             MoveType type=(enemyPieces& (1ULL<<to))?MoveType::Capture :MoveType::Normal;
@@ -305,7 +305,7 @@ void generateQueenMoves(GameState& state,std::vector<Move> &moves,Color color){
    
     while(Queens){
         int from=__builtin_ctzll(Queens);
-        uint64_t attacks=(generate_bishop_attack(from,occupied)|generate_rook_attack(from,occupied))&~ownPieces;
+        uint64_t attacks=(getBishopAttacks(from,occupied)|getRookAttacks(from,occupied))&~ownPieces;
         while(attacks){
             int to=__builtin_ctzll(attacks);
             MoveType type=(enemyPieces& (1ULL<<to))?MoveType::Capture :MoveType::Normal;

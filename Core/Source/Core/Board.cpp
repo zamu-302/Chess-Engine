@@ -181,7 +181,7 @@ void GameState::Makemove(const Move &move){
         fullMoveClock++;
         
     }
-    // king moved — lose both rights for that color
+// king moved — lose both rights for that color
 if (move.from==60) {
     castlingKingSideWhite = castlingQueenSideWhite = false;
 }
@@ -300,16 +300,48 @@ else{
 
 
 
-bool GameState::inCheck()const {
-    std::vector<Move> moves=generatePseudoLegalMoves(*this);
-    for(auto move:moves){
-        if(move.type==MoveType::Capture||move.type==MoveType::PromotionCapture){
-            if((board[move.toRow][move.toCol].type==PieceType::King)&&(board[move.toRow][move.toCol].color!=getTurn())){
-                return true;
-            }
-            
-        }
+bool GameState::inCheck(Color kingColor) {
+    uint64_t king=(kingColor==Color::White)? board.whiteKing:board.blackKing;
+    uint64_t occupied=(whitePiece()|blackPiece());
+
+    int kingSq=__builtin_ctzll(king);
+
+    uint64_t enemyPiece=(kingColor==Color::White)? blackPiece():whitePiece();
+    uint64_t enemyRooks   = (kingColor == Color::White) ? board.blackRook   : board.whiteRook;
+    uint64_t enemyBishops = (kingColor == Color::White) ? board.blackBishop : board.whiteBishop;
+    uint64_t enemyQueens  = (kingColor == Color::White) ? board.blackQueen  : board.whiteQueen;
+    uint64_t enemyKnights = (kingColor == Color::White) ? board.blackKnight : board.whiteKnight;
+    uint64_t enemyPawns   = (kingColor == Color::White) ? board.blackPawn   : board.whitePawn;
+    uint64_t enemyKing    = (kingColor == Color::White) ? board.blackKing   : board.whiteKing;
+
+    // knight check — lookup table
+    if (knightAttacks[kingSq] & enemyKnights) return true;
+
+    // king check — lookup table
+    if (kingAttacks[kingSq] & enemyKing) return true;
+
+    // rook/queen check — magic lookup
+    uint64_t rookRays = getRookAttacks(kingSq, occupied);
+    if (rookRays & (enemyRooks | enemyQueens)) return true;
+
+    // bishop/queen check — magic lookup
+    uint64_t bishopRays = getBishopAttacks(kingSq, occupied);
+    if (bishopRays & (enemyBishops | enemyQueens)) return true;
+
+    // pawn check — depends on king color
+    if (kingColor == Color::Black) {
+        const uint64_t NOT_A_FILE = 0xFEFEFEFEFEFEFEFEULL;
+        const uint64_t NOT_H_FILE = 0x7F7F7F7F7F7F7F7FULL;
+        uint64_t pawnAttacks = ((king & NOT_A_FILE) << 7) | ((king & NOT_H_FILE) << 9);
+        if (pawnAttacks & enemyPawns) return true;
+    } else {
+        const uint64_t NOT_A_FILE = 0xFEFEFEFEFEFEFEFEULL;
+        const uint64_t NOT_H_FILE = 0x7F7F7F7F7F7F7F7FULL;
+        uint64_t pawnAttacks = ((king & NOT_A_FILE) >> 9) | ((king & NOT_H_FILE) >> 7);
+        if (pawnAttacks & enemyPawns) return true;
     }
+
+
     return false;
 }
 

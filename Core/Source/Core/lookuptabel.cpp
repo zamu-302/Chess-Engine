@@ -100,7 +100,6 @@ void initMagicTables(){
 
     }
 }
-
 constexpr uint64_t bishopOccupancy(int sq){
     constexpr int offset[4][2]{{1,1},{1,-1},{-1,1},{-1,-1}};
     int row=sq/8;

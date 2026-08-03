@@ -21,7 +21,7 @@ uint64_t blackPiece();
 uint64_t whitePiece();
 bool isSquareEmpty(int pos);
 bool isEnemyPiece(int pos, Color color);
-bool inCheck()const;
+bool inCheck(Color kingColor);
 std::pair<bool, bool> getCastlingRights() const;
 GameState() {
     LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");

@@ -17,3 +17,5 @@ void generateRookMoves(const GameState& state,std::vector<Move>& moves,Color col
 void generateKnightMoves(const GameState& state,std::vector<Move>& moves,Color color);
 void generateBishopMoves(const GameState& state,std::vector<Move>& moves, Color color);
 void generateKingMoves(const GameState& state,std::vector<Move>& moves, Color color);
+inline uint64_t getRookAttacks(int sq, uint64_t occupied);
+inline uint64_t getBishopAttacks(int sq, uint64_t occupied);
