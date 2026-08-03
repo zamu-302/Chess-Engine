@@ -390,6 +390,18 @@ bool GameState::inCheck(Color kingColor)const {
 }
 
 void GameState::LoadFEN(const std::string &fen){
+    board.whitePawn = board.whiteKnight = board.whiteBishop = 0;
+    board.whiteRook = board.whiteQueen  = board.whiteKing   = 0;
+    board.blackPawn = board.blackKnight = board.blackBishop = 0;
+    board.blackRook = board.blackQueen  = board.blackKing   = 0;
+    castlingKingSideWhite  = false;
+    castlingQueenSideWhite = false;
+    castlingKingSideBlack  = false;
+    castlingQueenSideBlack = false;
+    enPassantTargetRow = -1;
+    enPassantTargetcol = -1;
+    halfMoveClock = 0;
+    fullMoveClock = 1;
     std::vector<std::string> parts=split(fen,' ');
     std::string pos=parts[0];
     int row=0;

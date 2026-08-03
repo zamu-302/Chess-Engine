@@ -66,8 +66,9 @@ static bool playUciMove(GameState& state, const std::string& text)
 		});
 	}
 
-	if (it == moves.end())
-		return false;
+	if (it == moves.end()){
+		std::cerr<< "Failed To Apply Move: "<<text<<" in postion\n";
+		return false;}
 
 	state.Makemove(*it);
 	return true;
