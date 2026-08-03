@@ -254,10 +254,6 @@ while(king){
         }
 
     }
-    
-    
-
-
 void generateRookMoves(GameState& state,std::vector<Move> &moves,Color color){
     uint64_t ownPieces=(color==Color::White)? state.whitePiece():state.blackPiece();
     uint64_t occupied=(state.blackPiece()|state.whitePiece());
@@ -279,7 +275,6 @@ void generateRookMoves(GameState& state,std::vector<Move> &moves,Color color){
 
     }
 }
-
 void generateBishopMoves(GameState& state,std::vector<Move> &moves,Color color){
    uint64_t ownPieces=(color==Color::White)? state.whitePiece():state.blackPiece();
     uint64_t occupied=(state.blackPiece()|state.whitePiece());
@@ -326,28 +321,19 @@ void generateQueenMoves(GameState& state,std::vector<Move> &moves,Color color){
 
 std::vector<Move> generatePseudoLegalMoves(const GameState& state){
 std::vector<Move> move;
-if(state.WhiteToMove){
-    
-    generateBishopMoves(state,move,Color::White);
-    generateRookMoves(state,move,Color::White);
-    generatePawnMoves(state,move,Color::White);
-    generateQueenMoves(state,move,Color::White);
-    generateKingMoves(state,move,Color::White);
-    generateKnightMoves(state,move,Color::White);
+Color color=(state.WhiteToMove)? Color::White: Color::Black;
 
     
-}
-else{
-    generateBishopMoves(state,move,Color::Black);
-    generateRookMoves(state,move,Color::Black);
-    generatePawnMoves(state,move,Color::Black);
-    generateQueenMoves(state,move,Color::Black);
-    generateKingMoves(state,move,Color::Black);
-    generateKnightMoves(state,move,Color::Black);
+    generateBishopMoves(state,move,color);
+    generateRookMoves(state,move,color);
+    generatePawnMoves(state,move,color);
+    generateQueenMoves(state,move,color);
+    generateKingMoves(state,move,color);
+    generateKnightMoves(state,move,color);
+
+    
 
 
-
-}
    
 
 

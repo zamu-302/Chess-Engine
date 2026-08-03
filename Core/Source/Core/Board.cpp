@@ -7,8 +7,8 @@
 #include <string>
 #include <algorithm>
 
-Piece GameState::getPiece(int row,int col)const{
-    int square=row*8+col;
+Piece GameState::getPiece(int square)const{
+    
     uint64_t mask=1ULL<<square;
     // white piece
     if(board.whiteBishop&mask) return {PieceType::Bishop,Color::White};
@@ -34,10 +34,7 @@ uint64_t GameState::blackPiece(){
 uint64_t GameState::whitePiece(){
     board.whiteBishop|board.whiteKing|board.whiteKnight|board.whitePawn|board.whiteQueen|board.whiteRook;
 }
-bool GameState::isSquareEmpty(int pos){
-    uint64_t mask=1Ull<<pos;
-    return mask&(blackPiece()|whitePiece());
-}
+
 bool GameState::isEnemyPiece(int pos, Color color){
     uint64_t mask=1Ull<<pos;
     if (color==Color::White){
@@ -59,19 +56,44 @@ int GameState::getEnPassantTargetrow()const {
     return enPassantTargetRow;
 }
 
+void GameState::clearState(int sq){
+    uint64_t mask=~(1ULL<<sq);
+    board.blackBishop&=mask;
+    board.blackKnight&=mask;
+    board.blackPawn&=mask;
+    board.blackQueen&=mask;
+    board.blackRook&=mask;
+    board.whiteBishop&=mask;
+    board.whiteKnight&=mask;
+    board.whitePawn&=mask;
+    board.whiteQueen&=mask;
+    board.whiteRook&=mask;
+    board.whiteKing&=mask;
+    board.blackKing&=mask;
+    
+    
 
+}
 
 void GameState::Makemove(const Move &move){
     bool flag=false;
+    Piece p=getPiece(move.from);
+    Color color=p.color;
+    PieceType type=p.type;
     //normal type
     if(move.type==MoveType::Normal){
-        board[move.toRow][move.toCol]=getPiece(move.fromRow,move.fromCol);
+        
+       
+        setPiece(move.to,type,color);
         halfMoveClock++;
-        if((board[move.toRow][move.toCol].type==PieceType::Pawn)){
+        if(type==PieceType::Pawn){
             halfMoveClock=0;
-            if(abs(move.toRow-move.fromRow)==2){
-                enPassantTargetRow=(move.fromRow+move.toRow)/2;
-                enPassantTargetcol=move.fromCol;
+            int toRow=move.to/8;
+            int fromRow=move.from/8;
+            int fromCol=move.from%8;
+            if(abs(toRow-fromRow)==2){
+                enPassantTargetRow=(toRow+fromRow)/2;
+                enPassantTargetcol=fromCol;
                 flag=true;
             }
         }
@@ -80,14 +102,17 @@ void GameState::Makemove(const Move &move){
     
     //capture
     else if(move.type==MoveType::Capture){
-       board[move.toRow][move.toCol]=getPiece(move.fromRow,move.fromCol);
+       clearState(move.to); 
+       setPiece(move.to,type,color);
        halfMoveClock=0;
 
     }
     //enpassant
     else if(move.type==MoveType::Enpassant){
-        board[move.toRow][move.toCol]=getPiece(move.fromRow,move.fromCol);
-        board[move.fromRow][enPassantTargetcol]={PieceType::None,Color::None};
+        setPiece(move.to,type,color);
+        int row=move.from/8;
+        clearState((row*8)+enPassantTargetcol);
+   
         halfMoveClock=0;
     }
 
@@ -95,17 +120,20 @@ void GameState::Makemove(const Move &move){
 
     else if(move.type==MoveType::KingSideCastle||move.type==MoveType::QueenSideCastle){
         if(move.type==MoveType::KingSideCastle){
-        board[move.toRow][move.toCol]=getPiece(move.fromRow,move.fromCol);
-        board[move.toRow][move.toCol-1]=getPiece(move.toRow,7);
-        board[move.toRow][7]={PieceType::None,Color::None};
+        setPiece(move.to,type,color);
+        setPiece(move.to-1,PieceType::Rook,color);
+        int row= move.to/8;
+        clearState((row*8)+7);
+       
         
         }
         
     
         else if(move.type==MoveType::QueenSideCastle){
-        board[move.toRow][move.toCol]=getPiece(move.fromRow,move.fromCol);
-        board[move.toRow][move.toCol+1]=getPiece(move.toRow,0);
-        board[move.toRow][0]={PieceType::None,Color::None};
+        setPiece(move.to,type,color);
+        setPiece(move.to+1,PieceType::Rook,color);
+        int row= move.to/8;
+        clearState(row*8);
         }
     halfMoveClock++;
     if(WhiteToMove){
@@ -120,10 +148,31 @@ void GameState::Makemove(const Move &move){
 
     //promotion
     else{
-        board[move.toRow][move.toCol]={move.PromotionPiece,getTurn()};
+        clearState(move.to); 
+        uint64_t mask=1ULL<<move.to;
+        switch (move.PromotionPiece)
+        {
+        case PieceType::Queen:
+            WhiteToMove? (board.whiteQueen|=mask):(board.blackQueen|=mask);
+            break;
+        case PieceType::Rook:
+            WhiteToMove? (board.whiteRook|=mask):(board.blackRook|=mask);
+            break;
+        case PieceType::Bishop:
+            WhiteToMove? (board.whiteBishop|=mask):(board.blackBishop|=mask);
+            break;
+        case PieceType::Knight:
+            WhiteToMove? (board.whiteKnight|=mask):(board.blackKnight|=mask);
+            break;
+        
+        default:
+            break;
+        }
+      
         halfMoveClock++;
     }
-    board[move.fromRow][move.fromCol]={PieceType::None,Color::None};
+    clearState(move.from);
+   
     if(!flag){
         enPassantTargetcol=-1;
         enPassantTargetRow=-1;
@@ -133,24 +182,24 @@ void GameState::Makemove(const Move &move){
         
     }
     // king moved — lose both rights for that color
-if (move.fromRow == 7 && move.fromCol == 4) {
+if (move.from==60) {
     castlingKingSideWhite = castlingQueenSideWhite = false;
 }
-if (move.fromRow == 0 && move.fromCol == 4) {
+if (move.from==4) {
     castlingKingSideBlack = castlingQueenSideBlack = false;
 }
 
 // rook moved from starting square — lose that side's right
-if (move.fromRow == 7 && move.fromCol == 7) castlingKingSideWhite = false;
-if (move.fromRow == 7 && move.fromCol == 0) castlingQueenSideWhite = false;
-if (move.fromRow == 0 && move.fromCol == 7) castlingKingSideBlack = false;
-if (move.fromRow == 0 && move.fromCol == 0) castlingQueenSideBlack = false;
+if (move.from==63) castlingKingSideWhite = false;
+if (move.from==56) castlingQueenSideWhite = false;
+if (move.from==7) castlingKingSideBlack = false;
+if (move.from==0) castlingQueenSideBlack = false;
 
 // rook captured on its starting square — lose that right too
-if (move.toRow == 7 && move.toCol == 7) castlingKingSideWhite = false;
-if (move.toRow == 7 && move.toCol == 0) castlingQueenSideWhite = false;
-if (move.toRow == 0 && move.toCol == 7) castlingKingSideBlack = false;
-if (move.toRow == 0 && move.toCol == 0) castlingQueenSideBlack = false;
+if (move.to==63) castlingKingSideWhite = false;
+if (move.to==56) castlingQueenSideWhite = false;
+if (move.to==7) castlingKingSideBlack = false;
+if (move.to==0) castlingQueenSideBlack = false;
 WhiteToMove^=1;
 
 }

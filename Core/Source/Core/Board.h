@@ -10,10 +10,11 @@ public:
 void LoadFEN(const std::string & fen);
 std::string toFEN()const;
 
-Piece getPiece(int row,int col) const;
+Piece getPiece(int square) const;
 
 void Makemove(const Move& move);
 void UndoMove();
+void clearState(int sq);
 int getEnPassantTargetcol() const;
 int getEnPassantTargetrow()const;
 uint64_t blackPiece();
