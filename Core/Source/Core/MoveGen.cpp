@@ -87,10 +87,11 @@ while(normalCapR){
 int enpassantRow=state.getEnPassantTargetrow();
 int enpassantCol=state.getEnPassantTargetcol();
 int square=enpassantRow*8+enpassantCol;
+if(enpassantRow!=-1){
 uint64_t mask=1Ull<<square;
 uint64_t enpassRight=((pawns&NOT_H_FILE)>>7)&mask;
 uint64_t enpassLeft=((pawns&NOT_A_FILE)>>9)&mask;
-if(enpassantRow!=-1){
+
 if(enpassRight){ int to=__builtin_ctzll(enpassRight); moves.emplace_back(to+7,to,MoveType::Enpassant); enpassRight&=enpassRight-1;}
 if(enpassLeft){ int to=__builtin_ctzll(enpassLeft); moves.emplace_back(to+9,to,MoveType::Enpassant); enpassLeft&=enpassLeft-1;}
 }
@@ -165,15 +166,17 @@ while(normalCapR){
 int enpassantRow=state.getEnPassantTargetrow();
 int enpassantCol=state.getEnPassantTargetcol();
 int square=enpassantRow*8+enpassantCol;
-uint64_t mask=1Ull<<square;
-uint64_t enpassRight=((pawns&NOT_A_FILE)<<9)&mask;
-uint64_t enpassLeft=((pawns&NOT_H_FILE)<<7)&mask;
 if(enpassantRow!=-1){
+uint64_t mask=1Ull<<square;
+uint64_t enpassRight=((pawns&NOT_H_FILE)<<9)&mask;
+uint64_t enpassLeft=((pawns&NOT_A_FILE)<<7)&mask;
+
 if(enpassRight){ int to=__builtin_ctzll(enpassRight); moves.emplace_back(to-9,to,MoveType::Enpassant); enpassRight&=enpassRight-1;}
 if(enpassLeft){ int to=__builtin_ctzll(enpassLeft); moves.emplace_back(to-7,to,MoveType::Enpassant); enpassLeft&=enpassLeft-1; }
 }
 }
 }
+
 
 void generateKnightMoves(const GameState& state,std::vector<Move> &moves,Color color){
 const uint64_t ownPieces=(color==Color::White)?state.whitePiece(): state.blackPiece();
