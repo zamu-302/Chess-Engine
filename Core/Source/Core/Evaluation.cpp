@@ -2,7 +2,7 @@
 #include "Evaluation.h"
 
 
-int evaluation(const GameState& state){
+int evaluation(GameState& state) {
 int pawnValue=100;
 int knightValue=320;
 int QueenValue=900;
@@ -11,14 +11,12 @@ int KingValue=20000;
 int BishopValue=320;
 
 
-
-
+uint64_t occupied=(state.blackPiece()|state.whitePiece());
 int score=0;
-for(int row=0;row<8;row++){
-    for(int col=0;col<8;col++){
-        Piece piece=state.getPiece(row,col);
-
-        switch (piece.type)
+while(occupied){
+    int from = __builtin_ctzll(occupied);
+    Piece piece=state.getPiece(from);
+    switch (piece.type)
         {
         case PieceType::Pawn:
             score+=(piece.color==Color::White)?pawnValue:-pawnValue;
@@ -39,8 +37,7 @@ for(int row=0;row<8;row++){
         default:
             break;
         }
-
-    }
+    occupied &= occupied - 1;
 }
 
 

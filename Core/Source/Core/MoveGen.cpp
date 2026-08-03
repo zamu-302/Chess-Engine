@@ -349,7 +349,8 @@ std::vector<Move> generateLegalMoves(const GameState& state){
     for(auto& move:moves){
         GameState copy=state;
         copy.Makemove(move);
-        if(!copy.inCheck()){
+        Color color=(copy.WhiteToMove)?Color::White:Color::Black;
+        if(!copy.inCheck(color)){
             LegalMoves.push_back(move);
         }
     }

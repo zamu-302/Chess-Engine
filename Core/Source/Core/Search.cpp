@@ -4,11 +4,13 @@
 #include "search.h"
 
 
-int maxi(const GameState& state,int depth){
+int maxi(GameState& state,int depth){
     std::vector<Move> moves=generateLegalMoves(state);
+    Color color=state.WhiteToMove? Color::White:Color::Black;
    
     if (moves.empty()) {
-        if (state.inCheck()) {
+        
+        if (state.inCheck(color)) {
             return -100000 + depth;  
         } else {
             return 0;  
@@ -29,11 +31,11 @@ int maxi(const GameState& state,int depth){
     }
     return max;
 }
-int mini(const GameState& state, int depth){
+int mini(GameState& state, int depth){
     std::vector<Move> moves=generateLegalMoves(state);
-    
+    Color color=state.WhiteToMove? Color::White:Color::Black;
     if (moves.empty()) {
-        if (state.inCheck()) {
+        if (state.inCheck(color)) {
             return 100000 - depth;  
         } else {
             return 0;  
@@ -57,15 +59,16 @@ int mini(const GameState& state, int depth){
 Move selectBestMove(const GameState& state, int depth){
 std::vector<Move> moves=generateLegalMoves(state);
 if(moves.empty()){
-    return Move{-1,-1,-1,-1};
+    return Move{-1,-1};
 }
 Move bestMove=moves.front();
-int bestScore=(state.getTurn()==Color::White)?std::numeric_limits<int>::min(): std::numeric_limits<int>::max();
+Color color=state.WhiteToMove? Color::White:Color::Black;
+int bestScore=(color==Color::White)?std::numeric_limits<int>::min(): std::numeric_limits<int>::max();
 for(const auto& move:moves){
     GameState next=state;
     next.Makemove(move);
-    int score=(state.getTurn()==Color::White)?mini(next,depth-1):maxi(next,depth-1);
-    if ((state.getTurn()==Color::White&& score>bestScore)||(state.getTurn()==Color::Black&&score<bestScore)){
+    int score=(color==Color::White)?mini(next,depth-1):maxi(next,depth-1);
+    if ((color==Color::White&& score>bestScore)||(color==Color::Black&&score<bestScore)){
         bestScore=score;
         bestMove=move;
     }

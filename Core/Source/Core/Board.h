@@ -9,17 +9,13 @@ public:
 
 void LoadFEN(const std::string & fen);
 std::string toFEN()const;
-
 Piece getPiece(int square) const;
-
 void Makemove(const Move& move);
-void UndoMove();
 void clearState(int sq);
 int getEnPassantTargetcol() const;
 int getEnPassantTargetrow()const;
 uint64_t blackPiece();
 uint64_t whitePiece();
-bool isSquareEmpty(int pos);
 bool isEnemyPiece(int pos, Color color);
 bool inCheck(Color kingColor);
 std::pair<bool, bool> getCastlingRights() const;
@@ -39,5 +35,4 @@ int enPassantTargetcol=-1;
 int fullMoveClock=1;
 int halfMoveClock=0;
 void setPiece(int square,PieceType piece,Color color);
-
 };
