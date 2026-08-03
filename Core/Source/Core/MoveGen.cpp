@@ -4,19 +4,8 @@
 bool checkBound(int row, int col) {
     return row >= 0 && row < 8 && col >= 0 && col < 8;
 }
-inline uint64_t getRookAttacks(int sq, uint64_t occupied) {
-    uint64_t blockers = occupied & rookMask[sq];
-    int index = (int)((blockers * rookMagicnum[sq]) >> (64 - ROOK_BITS[sq]));
-    return rookAttacks[sq][index];
-}
 
-inline uint64_t getBishopAttacks(int sq, uint64_t occupied) {
-    uint64_t blockers = occupied & bishopMask[sq];
-    int index = (int)((blockers * bishopMagicnum[sq]) >> (64 - BISHOP_BITS[sq]));
-    return bishopAttacks[sq][index];
-}
-
-void generatePawnMoves(GameState& state,std::vector<Move> &moves,Color color){
+void generatePawnMoves(const GameState& state,std::vector<Move> &moves,Color color){
 
 uint64_t pawns=(color==Color::White)? state.board.whitePawn:state.board.blackPawn;
 const uint64_t NOT_A_FILE = 0xFEFEFEFEFEFEFEFEULL;  
@@ -186,7 +175,7 @@ if(enpassLeft){ int to=__builtin_ctzll(enpassLeft); moves.emplace_back(to-7,to,M
 }
 }
 
-void generateKnightMoves(GameState& state,std::vector<Move> &moves,Color color){
+void generateKnightMoves(const GameState& state,std::vector<Move> &moves,Color color){
 const uint64_t ownPieces=(color==Color::White)?state.whitePiece(): state.blackPiece();
 uint64_t knight=(color==Color::White)?state.board.whiteKnight: state.board.blackKnight;
 const uint64_t enemyPieces=(color==Color::White)?state.blackPiece(): state.whitePiece();
@@ -211,7 +200,7 @@ while(knight){
 
 
 }
-void generateKingMoves(GameState& state,std::vector<Move> &moves,Color color){
+void generateKingMoves(const GameState& state,std::vector<Move> &moves,Color color){
 const uint64_t ownPieces=(color==Color::White)?state.whitePiece(): state.blackPiece();
 uint64_t king=(color==Color::White)?state.board.whiteKing: state.board.blackKing;
 const uint64_t enemyPieces=(color==Color::White)?state.blackPiece(): state.whitePiece();
@@ -237,24 +226,29 @@ while(king){
         std::pair<bool,bool> rights=state.getCastlingRights();
         bool kingside=rights.first;
         bool queenside=rights.second;
+        
         if(kingside){
            
            uint64_t mask= (1ULL << (casfrom + 1)) | (1ULL << (casfrom + 2));
            if(!(mask&(ownPieces|enemyPieces))){
+            if((!state.inCheck(color))&&(!state.squareAttacked(state,casfrom+1,color))&&(!state.squareAttacked(state,casfrom+2,color))){
             moves.emplace_back(casfrom,casfrom+2,MoveType::KingSideCastle);
+        }
            }
         }
         if(queenside){
            
            uint64_t mask= (1ULL << (casfrom - 1)) | (1ULL << (casfrom - 2)) |(1ULL<<(casfrom-3));
            if(!(mask&(ownPieces|enemyPieces))){
+            if((!state.inCheck(color))&&(!state.squareAttacked(state,casfrom-1,color))&&(!state.squareAttacked(state,casfrom-2,color))){
             moves.emplace_back(casfrom,casfrom-2,MoveType::QueenSideCastle);
+            }
            }
             
         }
 
     }
-void generateRookMoves(GameState& state,std::vector<Move> &moves,Color color){
+void generateRookMoves(const GameState& state,std::vector<Move> &moves,Color color){
     uint64_t ownPieces=(color==Color::White)? state.whitePiece():state.blackPiece();
     uint64_t occupied=(state.blackPiece()|state.whitePiece());
     uint64_t Rook=(color==Color::White)? state.board.whiteRook:state.board.blackRook;
@@ -275,7 +269,7 @@ void generateRookMoves(GameState& state,std::vector<Move> &moves,Color color){
 
     }
 }
-void generateBishopMoves(GameState& state,std::vector<Move> &moves,Color color){
+void generateBishopMoves(const GameState& state,std::vector<Move> &moves,Color color){
    uint64_t ownPieces=(color==Color::White)? state.whitePiece():state.blackPiece();
     uint64_t occupied=(state.blackPiece()|state.whitePiece());
     uint64_t Bishop=(color==Color::White)? state.board.whiteBishop:state.board.blackBishop;
@@ -297,7 +291,7 @@ void generateBishopMoves(GameState& state,std::vector<Move> &moves,Color color){
     }
     
 }
-void generateQueenMoves(GameState& state,std::vector<Move> &moves,Color color){
+void generateQueenMoves(const GameState& state,std::vector<Move> &moves,Color color){
    uint64_t ownPieces=(color==Color::White)? state.whitePiece():state.blackPiece();
     uint64_t occupied=(state.blackPiece()|state.whitePiece());
     uint64_t Queens=(color==Color::White)? state.board.whiteQueen:state.board.blackQueen;
@@ -345,11 +339,11 @@ Color color=(state.WhiteToMove)? Color::White: Color::Black;
 std::vector<Move> generateLegalMoves(const GameState& state){
     std::vector<Move> moves=generatePseudoLegalMoves(state);
     std::vector<Move> LegalMoves;
-
+    Color color=(state.WhiteToMove)?Color::White:Color::Black;
     for(auto& move:moves){
         GameState copy=state;
         copy.Makemove(move);
-        Color color=(copy.WhiteToMove)?Color::White:Color::Black;
+        
         if(!copy.inCheck(color)){
             LegalMoves.push_back(move);
         }

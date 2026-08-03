@@ -4,7 +4,7 @@
 #include "search.h"
 
 
-int maxi(GameState& state,int depth){
+int maxi(const GameState& state,int depth){
     std::vector<Move> moves=generateLegalMoves(state);
     Color color=state.WhiteToMove? Color::White:Color::Black;
    
@@ -31,7 +31,7 @@ int maxi(GameState& state,int depth){
     }
     return max;
 }
-int mini(GameState& state, int depth){
+int mini(const GameState& state, int depth){
     std::vector<Move> moves=generateLegalMoves(state);
     Color color=state.WhiteToMove? Color::White:Color::Black;
     if (moves.empty()) {

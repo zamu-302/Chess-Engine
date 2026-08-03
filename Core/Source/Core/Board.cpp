@@ -28,11 +28,11 @@ Piece GameState::getPiece(int square)const{
 
 }
 
-uint64_t GameState::blackPiece(){
-    board.blackBishop|board.blackKing|board.blackKnight|board.blackPawn|board.blackQueen|board.blackRook;
+uint64_t GameState::blackPiece()const{
+    return board.blackBishop|board.blackKing|board.blackKnight|board.blackPawn|board.blackQueen|board.blackRook;
 }
-uint64_t GameState::whitePiece(){
-    board.whiteBishop|board.whiteKing|board.whiteKnight|board.whitePawn|board.whiteQueen|board.whiteRook;
+uint64_t GameState::whitePiece()const{
+    return board.whiteBishop|board.whiteKing|board.whiteKnight|board.whitePawn|board.whiteQueen|board.whiteRook;
 }
 
 bool GameState::isEnemyPiece(int pos, Color color){
@@ -238,7 +238,7 @@ PieceType getType(char c){
     case 'b':case 'B': return PieceType::Bishop;
     
     default:
-        break;
+        return PieceType::None;
     }
 }
 void GameState::setPiece(int square,PieceType type,Color color){
@@ -299,8 +299,52 @@ else{
 }
 
 
+bool GameState::squareAttacked(const GameState& state, int sq, Color color)const{
+    
+    uint64_t king=1Ull<<sq;
+    uint64_t occupied=(whitePiece()|blackPiece());
 
-bool GameState::inCheck(Color kingColor) {
+    int kingSq=__builtin_ctzll(king);
+
+    uint64_t enemyPiece=(color==Color::White)? blackPiece():whitePiece();
+    uint64_t enemyRooks   = (color == Color::White) ? board.blackRook   : board.whiteRook;
+    uint64_t enemyBishops = (color == Color::White) ? board.blackBishop : board.whiteBishop;
+    uint64_t enemyQueens  = (color == Color::White) ? board.blackQueen  : board.whiteQueen;
+    uint64_t enemyKnights = (color == Color::White) ? board.blackKnight : board.whiteKnight;
+    uint64_t enemyPawns   = (color == Color::White) ? board.blackPawn   : board.whitePawn;
+    uint64_t enemyKing    = (color == Color::White) ? board.blackKing   : board.whiteKing;
+
+    // knight check — lookup table
+    if (knightAttacks[kingSq] & enemyKnights) return true;
+
+    // king check — lookup table
+    if (kingAttacks[kingSq] & enemyKing) return true;
+
+    // rook/queen check — magic lookup
+    uint64_t rookRays = getRookAttacks(kingSq, occupied);
+    if (rookRays & (enemyRooks | enemyQueens)) return true;
+
+    // bishop/queen check — magic lookup
+    uint64_t bishopRays = getBishopAttacks(kingSq, occupied);
+    if (bishopRays & (enemyBishops | enemyQueens)) return true;
+
+    // pawn check — depends on king color
+    if (color == Color::Black) {
+        const uint64_t NOT_A_FILE = 0xFEFEFEFEFEFEFEFEULL;
+        const uint64_t NOT_H_FILE = 0x7F7F7F7F7F7F7F7FULL;
+        uint64_t pawnAttacks = ((king & NOT_A_FILE) << 7) | ((king & NOT_H_FILE) << 9);
+        if (pawnAttacks & enemyPawns) return true;
+    } else {
+        const uint64_t NOT_A_FILE = 0xFEFEFEFEFEFEFEFEULL;
+        const uint64_t NOT_H_FILE = 0x7F7F7F7F7F7F7F7FULL;
+        uint64_t pawnAttacks = ((king & NOT_A_FILE) >> 9) | ((king & NOT_H_FILE) >> 7);
+        if (pawnAttacks & enemyPawns) return true;
+    }
+
+
+    return false;
+}
+bool GameState::inCheck(Color kingColor)const {
     uint64_t king=(kingColor==Color::White)? board.whiteKing:board.blackKing;
     uint64_t occupied=(whitePiece()|blackPiece());
 

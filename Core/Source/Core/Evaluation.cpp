@@ -2,7 +2,7 @@
 #include "Evaluation.h"
 
 
-int evaluation(GameState& state) {
+int evaluation(const GameState& state) {
 int pawnValue=100;
 int knightValue=320;
 int QueenValue=900;

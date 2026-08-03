@@ -1,6 +1,13 @@
 #include <iostream>
 #include "Lookuptabel.h"
-constexpr bool checkBound(int row, int col) {
+
+uint64_t knightAttacks[64]={};
+uint64_t kingAttacks[64]={};
+uint64_t rookMask[64]={};
+uint64_t bishopMask[64]={};
+uint64_t rookAttacks[64][4096]={};
+uint64_t bishopAttacks[64][512]={};
+constexpr bool checkbound(int row, int col) {
     return row >= 0 && row < 8 && col >= 0 && col < 8;
 }
 void KnightLookupTabel(){
@@ -9,14 +16,14 @@ void KnightLookupTabel(){
         int r=sq/8;
         int c=sq%8;
             
-        if (checkBound(r+2,c+1)) attacks |= 1ULL << (sq + 17);
-        if (checkBound(r+2,c-1)) attacks |= 1ULL << (sq + 15);
-        if (checkBound(r-2,c+1)) attacks |= 1ULL << (sq - 15);
-        if (checkBound(r-2,c-1)) attacks |= 1ULL << (sq - 17);
-        if (checkBound(r+1,c+2)) attacks |= 1ULL << (sq + 10);
-        if (checkBound(r+1,c-2)) attacks |= 1ULL << (sq + 6);
-        if (checkBound(r-1,c+2)) attacks |= 1ULL << (sq - 6);
-        if (checkBound(r-1,c-2)) attacks |= 1ULL << (sq - 10);
+        if (checkbound(r+2,c+1)) attacks |= 1ULL << (sq + 17);
+        if (checkbound(r+2,c-1)) attacks |= 1ULL << (sq + 15);
+        if (checkbound(r-2,c+1)) attacks |= 1ULL << (sq - 15);
+        if (checkbound(r-2,c-1)) attacks |= 1ULL << (sq - 17);
+        if (checkbound(r+1,c+2)) attacks |= 1ULL << (sq + 10);
+        if (checkbound(r+1,c-2)) attacks |= 1ULL << (sq + 6);
+        if (checkbound(r-1,c+2)) attacks |= 1ULL << (sq - 6);
+        if (checkbound(r-1,c-2)) attacks |= 1ULL << (sq - 10);
 
         knightAttacks[sq] = attacks;
 
@@ -34,14 +41,14 @@ void KingLookupTabel(){
         int r=sq/8;
         int c=sq%8;
 
-        if(checkBound(r+1,c))attack|=1ULL<<(sq+8);
-        if(checkBound(r+1,c+1))attack|=1ULL<<(sq+9);
-        if(checkBound(r,c+1))attack|=1ULL<<(sq+1);
-        if(checkBound(r-1,c))attack|=1ULL<<(sq-8);
-        if(checkBound(r+1,c-1))attack|=1ULL<<(sq+7);
-        if(checkBound(r,c-1))attack|=1ULL<<(sq-1);
-        if(checkBound(r-1,c-1))attack|=1ULL<<(sq-9);
-        if(checkBound(r-1,c+1))attack|=1ULL<<(sq-7);
+        if(checkbound(r+1,c))attack|=1ULL<<(sq+8);
+        if(checkbound(r+1,c+1))attack|=1ULL<<(sq+9);
+        if(checkbound(r,c+1))attack|=1ULL<<(sq+1);
+        if(checkbound(r-1,c))attack|=1ULL<<(sq-8);
+        if(checkbound(r+1,c-1))attack|=1ULL<<(sq+7);
+        if(checkbound(r,c-1))attack|=1ULL<<(sq-1);
+        if(checkbound(r-1,c-1))attack|=1ULL<<(sq-9);
+        if(checkbound(r-1,c+1))attack|=1ULL<<(sq-7);
 
         kingAttacks[sq]=attack;
          
@@ -75,6 +82,8 @@ constexpr bool isInnerBound(int row,int col){
 return (row>0&&row<7)&&(col>0&&col<7);
 }
 void initMagicTables(){
+    KnightLookupTabel();
+    KingLookupTabel();
     for(int sq=0;sq<64;sq++){
         rookMask[sq]=rookOccupancy(sq);
         bishopMask[sq]=bishopOccupancy(sq);
@@ -128,7 +137,7 @@ uint64_t generate_bishop_attack(int sq,uint64_t block){
     for(int i=0;i<4;i++){
     int curRow=offset[i][0]+row;
     int curCol=offset[i][1]+col;
-    while(checkBound(curRow,curCol)){
+    while(checkbound(curRow,curCol)){
         attacks|=(1ULL<<(curRow*8+curCol));
         if (block&(1ULL<<(curRow*8+curCol))) break;
         curRow+=offset[i][0];

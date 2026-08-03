@@ -4,6 +4,7 @@
 #include <utility>
 #include "types.h"
 
+
 class GameState{
 public:
 
@@ -14,13 +15,15 @@ void Makemove(const Move& move);
 void clearState(int sq);
 int getEnPassantTargetcol() const;
 int getEnPassantTargetrow()const;
-uint64_t blackPiece();
-uint64_t whitePiece();
+uint64_t blackPiece()const;
+uint64_t whitePiece()const;
 bool isEnemyPiece(int pos, Color color);
-bool inCheck(Color kingColor);
+bool inCheck(Color kingColor)const;
+bool squareAttacked(const GameState& state, int square,Color color)const;
 std::pair<bool, bool> getCastlingRights() const;
 GameState() {
     LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+   
 }
 
 Postion board;

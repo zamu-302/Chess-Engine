@@ -1,26 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <iostream>
-class Postion{
-    public:
-    uint64_t whitePawn;  
-    uint64_t whiteQueen;  
-    uint64_t whiteKing;  
-    uint64_t whiteRook;  
-    uint64_t whiteBishop;  
-    uint64_t whiteKnight;  
-    uint64_t blackPawn;  
-    uint64_t blackQueen;  
-    uint64_t blackKing;  
-    uint64_t blackRook;  
-    uint64_t blackKnight;  
-    uint64_t blackBishop;  
-     
-};
-struct Piece{
-    PieceType type;
-    Color color;
-};
+
 
 enum class PieceType{
 None,
@@ -51,5 +32,25 @@ struct Move{
     int from;
     int to;
     MoveType type=MoveType::Normal;
-    PieceType PromotionPiece;
+    PieceType PromotionPiece=PieceType::None;
+};
+class Postion{
+    public:
+    uint64_t whitePawn=0;  
+    uint64_t whiteQueen=0;  
+    uint64_t whiteKing=0;  
+    uint64_t whiteRook=0;  
+    uint64_t whiteBishop=0;  
+    uint64_t whiteKnight=0;  
+    uint64_t blackPawn=0;  
+    uint64_t blackQueen=0;  
+    uint64_t blackKing=0;  
+    uint64_t blackRook=0;  
+    uint64_t blackKnight=0;  
+    uint64_t blackBishop=0;  
+     
+};
+struct Piece{
+    PieceType type=PieceType::None;
+    Color color=Color::None;
 };
