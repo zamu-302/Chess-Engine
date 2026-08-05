@@ -21,7 +21,10 @@ if(moves.empty()){
     for(const auto& move: moves){
         GameState next=state;
         next.Makemove(move);
+        
         int score=-negamax(next,depth-1,-beta,-alpha);
+        if(move.type==MoveType::Promotion) score+=300;
+        if(move.type==MoveType::KingSideCastle||move.type==MoveType::QueenSideCastle) score+=500;
         if(score>bestScore) {bestScore=score;}
         if(bestScore>alpha){alpha=bestScore;}
         if(alpha>=beta) {break;}

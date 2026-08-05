@@ -13,6 +13,8 @@ int BishopValue=320;
 
 uint64_t occupied=(state.blackPiece()|state.whitePiece());
 int score=0;
+//castling point
+
 while(occupied){
     int from = __builtin_ctzll(occupied);
     Piece piece=state.getPiece(from);

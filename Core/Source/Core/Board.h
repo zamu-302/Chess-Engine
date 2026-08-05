@@ -9,7 +9,6 @@ class GameState{
 public:
 
 void LoadFEN(const std::string & fen);
-std::string toFEN()const;
 Piece getPiece(int square) const;
 void Makemove(const Move& move);
 void clearState(int sq);
