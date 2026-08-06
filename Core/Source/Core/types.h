@@ -4,13 +4,15 @@
 
 
 enum class PieceType{
-None,
-Rook,
+Pawn,
+Knight,
 Bishop,
+Rook,
 Queen,
 King,
-Pawn,
-Knight
+None
+
+
 };
 enum class Color{
     None,

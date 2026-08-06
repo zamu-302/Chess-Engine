@@ -58,13 +58,6 @@ static bool playUciMove(GameState& state, const std::string& text)
 		return sameUciMove(move, text);
 	});
 
-	if (it == moves.end())
-	{
-		moves = generateLegalMoves(state);
-		it = std::find_if(moves.begin(), moves.end(), [&](const Move& move) {
-			return sameUciMove(move, text);
-		});
-	}
 
 	if (it == moves.end()){
 		std::cerr<< "Failed To Apply Move: "<<text<<" in postion\n";
@@ -136,7 +129,7 @@ int main()
 		}
 		else if (line.rfind("go", 0) == 0)
 		{
-			Move move = selectBestMove(state,3);
+			Move move = selectBestMove(state,90,3000);
 
 			if (move.from == -1)
 			{
