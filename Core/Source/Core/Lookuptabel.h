@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstdint>
-
+inline uint64_t zobristTabel[2][6][64];
+inline uint64_t zobristSideKey;
 extern uint64_t knightAttacks[64];
 extern uint64_t kingAttacks[64];
 extern uint64_t rookMask[64];
@@ -72,3 +73,4 @@ constexpr uint64_t bishopOccupancy(int sq);
 uint64_t generate_bishop_attack(int sq,uint64_t occupancy);
 uint64_t generate_rook_attack(int sq,uint64_t occupancy);
 void initMagicTables();
+

@@ -48,13 +48,39 @@ while(occupied){
         default:
             break;
         }
+    
     mg[c]+=mgValue[pt];
     eg[c]+=egValue[pt];
     phase+= phaseWeight[pt];
     
     occupied &= occupied - 1;
 }
-
+//bishop Pair
+    if (__builtin_popcountll(state.board.whiteBishop) >= 2) mg[0] += 30;
+    if (__builtin_popcountll(state.board.blackBishop) >= 2) mg[1] += 30;
+    //Rook on openFile
+    uint64_t rooks = state.board.whiteRook;
+    while (rooks) {
+        int sq = __builtin_ctzll(rooks);
+        int file = sq % 8;
+        uint64_t fileMask = 0x0101010101010101ULL << file;
+        if (!(fileMask & state.board.whitePawn)) { // no own pawn
+            if (!(fileMask & state.board.blackPawn)) mg[0] += 20; // fully open
+            else mg[0] += 10; // semi-open
+        }
+    rooks &= rooks - 1;
+}
+    rooks = state.board.blackRook;
+    while (rooks) {
+        int sq = __builtin_ctzll(rooks);
+        int file = sq % 8;
+        uint64_t fileMask = 0x0101010101010101ULL << file;
+        if (!(fileMask & state.board.blackPawn)) { 
+            if (!(fileMask & state.board.whitePawn)) mg[1] += 20; // fully open
+            else mg[1] += 10; // semi-open
+        }
+    rooks &= rooks - 1;
+}
 
     int mgScore=mg[0]-mg[1];
     int egScore=eg[0]-eg[1];

@@ -5,14 +5,28 @@
 #include "Board.h"
 #include "Evaluation.h"
 #include "Movegen.h"
+#include "Lookuptabel.h"
 #include "types.h"
 
+
+void initZobrist();
 using Clock=std::chrono::steady_clock;
 struct Timeup{};
 struct SearchLimits{
     Clock::time_point startTime;
     long long timeLimitsMs;
 };
+struct TTEntry{
+    uint64_t hash;
+    int depth;
+    int score;
+    Move bestMove;
+    enum Flag{EXACT,LOWER,UPPER} flag;
+};
+
+inline Move killerMoves[128][2];
+const int TT_SIZE=1<<22;
+inline TTEntry transpositionTable[TT_SIZE];
 inline SearchLimits g_limits;
 inline long long g_nodeCount;
 inline int PieceValue(PieceType t){
@@ -32,7 +46,7 @@ inline void CheckTime(){
         if(elapsed>=g_limits.timeLimitsMs) throw Timeup{};
     }
 }
-inline int moveScore(const GameState& state, const Move& move){
+inline int moveScore(const GameState& state, const Move& move,int depth){
     bool isCapture=(move.type==MoveType::Capture||move.type==MoveType::PromotionCapture||move.type==MoveType::Enpassant);
     if(isCapture){
         PieceType victim=(move.type==MoveType::Enpassant)?PieceType::Pawn: state.getPiece(move.to).type;
@@ -43,17 +57,24 @@ inline int moveScore(const GameState& state, const Move& move){
     if(move.type==MoveType::Promotion){
         return 90000;
     }
+    auto moveEquals=[&](const Move &a,const Move &b){
+        return a.from==b.from && a.to==b.to && a.type==b.type;
+    };
+    if(moveEquals(move,killerMoves[depth][0])||moveEquals(move,killerMoves[depth][1])){
+        return 8000;
+    }
     return 0;
 }
-inline void orderMoves(const GameState& state, std::vector<Move>& moves){
-    std::sort(moves.begin(),moves.end(),[&state](const Move& a,const Move& b){
-        return moveScore(state,a)>moveScore(state,b);
+inline void orderMoves(const GameState& state, std::vector<Move>& moves,int depth){
+    std::sort(moves.begin(),moves.end(),[&state,depth](const Move& a,const Move& b){
+        return moveScore(state,a,depth)>moveScore(state,b,depth);
     });
 }
 
 
 
-int negamax(const GameState& state, int depth,int alpha,int beta);
+
+int negamax(const GameState& state, int depth,int alpha,int beta,std::vector<uint64_t>& history);
 
 
-Move selectBestMove(const GameState& state, int maxDepth,long long timeLimitMs);
+Move selectBestMove(const GameState& state, int maxDepth,long long timeLimitMs,std::vector<uint64_t> gameHistory);

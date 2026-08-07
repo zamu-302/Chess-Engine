@@ -2,10 +2,28 @@
 #include <vector>
 #include "Board.h"
 #include "MoveGen.h"
+#include "Lookuptabel.h"
 #include <cctype>
 #include <cstdlib>
 #include <string>
 #include <algorithm>
+
+int GameState::getHalfMoveClock()const {
+    return halfMoveClock;
+}
+
+uint64_t GameState::getHash()const {
+uint64_t hash=0;
+uint64_t occupied=(blackPiece()|whitePiece());
+while(occupied){
+int sq=__builtin_ctzll(occupied);
+Piece p=getPiece(sq);
+hash^=zobristTabel[(int)p.color][(int)p.type][sq];
+occupied&=occupied-1;
+}
+if(!WhiteToMove){hash^=zobristSideKey;}
+return hash;
+}
 
 Piece GameState::getPiece(int square)const{
     

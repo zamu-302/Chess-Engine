@@ -5,6 +5,8 @@
 #include "types.h"
 
 
+
+
 class GameState{
 public:
 
@@ -16,10 +18,15 @@ int getEnPassantTargetcol() const;
 int getEnPassantTargetrow()const;
 uint64_t blackPiece()const;
 uint64_t whitePiece()const;
+uint64_t getHash()const;
+int getHalfMoveClock()const;
 bool isEnemyPiece(int pos, Color color);
 bool inCheck(Color kingColor)const;
 bool squareAttacked(const GameState& state, int square,Color color)const;
 std::pair<bool, bool> getCastlingRights() const;
+void setenpassTargetRow(int num);
+void setenpassTargetcol(int num);
+
 GameState() {
     LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
    

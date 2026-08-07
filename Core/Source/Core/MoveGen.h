@@ -22,7 +22,6 @@ inline uint64_t getRookAttacks(int sq, uint64_t occupied) {
     int index = (int)((blockers * rookMagicnum[sq]) >> (64 - ROOK_BITS[sq]));
     return rookAttacks[sq][index];
 }
-
 inline uint64_t getBishopAttacks(int sq, uint64_t occupied) {
     uint64_t blockers = occupied & bishopMask[sq];
     int index = (int)((blockers * bishopMagicnum[sq]) >> (64 - BISHOP_BITS[sq]));

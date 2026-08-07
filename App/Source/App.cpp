@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <cstring>
 #include <random>
 #include <sstream>
 #include <string>
@@ -66,9 +67,10 @@ static bool playUciMove(GameState& state, const std::string& text)
 	state.Makemove(*it);
 	return true;
 }
-
+static std::vector<uint64_t> gameHistory;
 static void setPosition(GameState& state, const std::string& line)
 {
+	gameHistory.clear();
 	std::istringstream stream(line);
 	std::string token;
 	stream >> token; // position
@@ -91,12 +93,16 @@ static void setPosition(GameState& state, const std::string& line)
 		state.LoadFEN(fen);
 		stream >> token;
 	}
+	gameHistory.emplace_back(state.getHash());
 
 	if (token != "moves")
 		return;
 
-	while (stream >> token)
+	while (stream >> token){
 		playUciMove(state, token);
+		gameHistory.emplace_back(state.getHash());
+	}
+	gameHistory.pop_back();
 }
 
 
@@ -104,7 +110,11 @@ static void setPosition(GameState& state, const std::string& line)
 int main()
 {
 	initMagicTables();
+	
+	initZobrist();
+	std::cerr << "Zobrist[0][0][0] = " << zobristTabel[0][0][0] << "\n";
 	GameState state;
+	
 	std::string line;
 
 	while (std::getline(std::cin, line))
@@ -121,7 +131,10 @@ int main()
 		}
 		else if (line == "ucinewgame")
 		{
+			gameHistory.clear();
 			state.LoadFEN(StartFen);
+			memset(transpositionTable, 0, sizeof(transpositionTable));
+    		memset(killerMoves, 0, sizeof(killerMoves));
 		}
 		else if (line.rfind("position", 0) == 0)
 		{
@@ -129,7 +142,20 @@ int main()
 		}
 		else if (line.rfind("go", 0) == 0)
 		{
-			Move move = selectBestMove(state,90,3000);
+			std::istringstream ss(line);
+    		std::string token;
+    		long long wtime = 60000, btime = 60000, movesToGo = 30;
+    
+    		while (ss >> token) {
+        	if (token == "wtime") ss >> wtime;
+        	else if (token == "btime") ss >> btime;
+        	else if (token == "movestogo") ss >> movesToGo;
+    		}
+    
+    		long long myTime = state.WhiteToMove ? wtime : btime;
+    		long long timeLimit = myTime / movesToGo;  
+    		timeLimit = std::max(timeLimit, 50LL);     
+			Move move = selectBestMove(state,90,timeLimit,gameHistory);
 
 			if (move.from == -1)
 			{

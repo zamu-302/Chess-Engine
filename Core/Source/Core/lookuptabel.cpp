@@ -1,4 +1,5 @@
 #include <iostream>
+#include <random>
 #include "Lookuptabel.h"
 
 uint64_t knightAttacks[64]={};
