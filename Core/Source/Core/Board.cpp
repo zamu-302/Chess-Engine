@@ -18,7 +18,8 @@ uint64_t occupied=(blackPiece()|whitePiece());
 while(occupied){
 int sq=__builtin_ctzll(occupied);
 Piece p=getPiece(sq);
-hash^=zobristTabel[(int)p.color][(int)p.type][sq];
+int c=(p.color==Color::White)? 0:1;
+hash^=zobristTabel[c][(int)p.type][sq];
 occupied&=occupied-1;
 }
 if(!WhiteToMove){hash^=zobristSideKey;}

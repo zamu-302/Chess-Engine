@@ -179,9 +179,11 @@ if(enpassLeft){ int to=__builtin_ctzll(enpassLeft); moves.emplace_back(to-7,to,M
 
 
 void generateKnightMoves(const GameState& state,std::vector<Move> &moves,Color color){
+    
 const uint64_t ownPieces=(color==Color::White)?state.whitePiece(): state.blackPiece();
-uint64_t knight=(color==Color::White)?state.board.whiteKnight: state.board.blackKnight;
 const uint64_t enemyPieces=(color==Color::White)?state.blackPiece(): state.whitePiece();
+uint64_t knight=(color==Color::White)?state.board.whiteKnight: state.board.blackKnight;
+
 while(knight){
     int from=__builtin_ctzll(knight);
     uint64_t target=knightAttacks[from]& ~ownPieces;
@@ -204,9 +206,10 @@ while(knight){
 
 }
 void generateKingMoves(const GameState& state,std::vector<Move> &moves,Color color){
+
 const uint64_t ownPieces=(color==Color::White)?state.whitePiece(): state.blackPiece();
-uint64_t king=(color==Color::White)?state.board.whiteKing: state.board.blackKing;
 const uint64_t enemyPieces=(color==Color::White)?state.blackPiece(): state.whitePiece();
+uint64_t king=(color==Color::White)?state.board.whiteKing: state.board.blackKing;
 int casfrom=__builtin_ctzll(king);
 while(king){
     int from=__builtin_ctzll(king);
@@ -251,6 +254,7 @@ while(king){
         }
 
     }
+    
 void generateRookMoves(const GameState& state,std::vector<Move> &moves,Color color){
     uint64_t ownPieces=(color==Color::White)? state.whitePiece():state.blackPiece();
     uint64_t occupied=(state.blackPiece()|state.whitePiece());

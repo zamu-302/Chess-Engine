@@ -17,22 +17,37 @@ void initZobrist() {
 int quiescence(const GameState& state, int alpha,int beta){
     CheckTime();
     Color color=state.WhiteToMove? Color::White:Color::Black;
-    int standPat=evaluation(state);
-    standPat=(color==Color::White)?standPat: -standPat;
+    bool inCheck=state.inCheck(color);
+    
+    int eval=0;
+    if(!inCheck){
+        eval=evaluation(state);
+        eval=(color==Color::White)?eval: -eval;
 
-    if(standPat>=beta) return beta;
-    if(standPat>alpha) alpha=standPat;
-
+        if(eval>=beta) return beta;
+        if(eval>alpha) alpha=eval;
+    }
 
     std::vector<Move> moves=generateLegalMoves(state);
-    std::vector<Move> capture;
-    for(auto& m:moves){
-        if(m.type==MoveType::Capture||m.type==MoveType::PromotionCapture||m.type==MoveType::Enpassant||m.type==MoveType::Promotion){
-            capture.emplace_back(m);
-        }
+    //checkmate
+    if (inCheck && moves.empty()) {
+        return -100000000; 
     }
-    orderMoves(state,capture,0);
-    for (const auto& move : capture) {
+    std::vector<Move> toSearch;
+    if(inCheck){
+        toSearch=moves;
+    }
+    else{
+        for(auto& m:moves){
+            if(m.type==MoveType::Capture||m.type==MoveType::PromotionCapture||m.type==MoveType::Enpassant||m.type==MoveType::Promotion){
+                toSearch.emplace_back(m);
+            }
+        } 
+    }
+    
+   
+    orderMoves(state,toSearch,0,Move{-1,-1});
+    for (const auto& move : toSearch) {
         GameState next = state;
         next.Makemove(move);
         int score = -quiescence(next, -beta, -alpha);
@@ -53,22 +68,27 @@ int negamax(const GameState& state ,int depth,int alpha,int beta,std::vector<uin
 
     int alphaOrig=alpha;
     TTEntry& entry= transpositionTable[hash%TT_SIZE];
-    if(entry.hash==hash && entry.depth>=depth){
-        if(entry.flag==TTEntry::EXACT) return entry.score;
-        if(entry.flag==TTEntry::LOWER){
-          alpha=std::max(alpha,entry.score);
-          if(alpha>=beta) return entry.score; 
+    Move ttMove{-1,-1};
+    if(entry.hash==hash){
+        ttMove=entry.bestMove;
+        if(entry.depth>=depth){
+            if(entry.flag==TTEntry::EXACT) return entry.score;
             
+            if(entry.flag==TTEntry::LOWER){
+                alpha=std::max(alpha,entry.score);
+                if(alpha>=beta) return entry.score; 
+                
+            }
+            if(entry.flag==TTEntry::UPPER)  {
+                beta=std::min(beta,entry.score);
+                if(alpha>=beta) return entry.score; 
+            }
+           
         }
-        if(entry.flag==TTEntry::UPPER)  {
-            beta=std::min(beta,entry.score);
-            if(alpha>=beta) return entry.score; 
-        }
-        if(alpha>=beta) return entry.score;
     }
 
     std::vector<Move> moves=generateLegalMoves(state); 
-    orderMoves(state,moves,depth);
+    orderMoves(state,moves,depth,ttMove);
     Color color=state.WhiteToMove? Color::White: Color::Black;
 if(moves.empty()){
     if(state.inCheck(color)){
@@ -97,6 +117,7 @@ if(moves.empty()){
             if(move.type==MoveType::Normal&&depth<128){
             killerMoves[depth][1]=killerMoves[depth][0];
             killerMoves[depth][0]=move;
+            historyTable[(int)state.WhiteToMove][move.from][move.to]+=depth*depth;
             }
             break;
         }
@@ -120,6 +141,11 @@ return bestScore;
 
 
 Move selectBestMove(const GameState& state, int maxDepth, long long timeLimitMs,std::vector<uint64_t> gameHistory){
+uint64_t rootHash=state.getHash();
+TTEntry& rootEntry= transpositionTable[rootHash% TT_SIZE];
+Move rootTTMove{-1,-1};
+if(rootEntry.hash==rootHash) rootTTMove=rootEntry.bestMove; 
+
 std::vector<Move> RootMoves=generateLegalMoves(state);
 if(RootMoves.empty()){
     return Move{-1,-1};
@@ -129,12 +155,12 @@ g_limits.startTime=Clock::now();
 g_limits.timeLimitsMs=timeLimitMs;
 
 Move bestMove=RootMoves.front();//as a fallback
-uint64_t rootHash=state.getHash();
+
 
 for(int depth=1;depth<=maxDepth;depth++){
     try{
         std::vector moves=RootMoves;
-        orderMoves(state,moves,depth);
+        orderMoves(state,moves,depth,rootTTMove);
         int alpha= std::numeric_limits<int>::min() + 1;
         int beta= std::numeric_limits<int>::max();
         Move bestMoveinDepth= moves.front();
@@ -158,6 +184,9 @@ for(int depth=1;depth<=maxDepth;depth++){
             
         }
         bestMove=bestMoveinDepth;
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - g_limits.startTime).count();
+        std::cout << "info depth " << depth<< " score cp " << bestScoreinDepth<< " nodes " << g_nodeCount<< " time " << elapsed << "\n";
+        std::cout.flush();
     }
     catch(Timeup&){
         break;

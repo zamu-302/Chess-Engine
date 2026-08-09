@@ -110,9 +110,8 @@ static void setPosition(GameState& state, const std::string& line)
 int main()
 {
 	initMagicTables();
-	
 	initZobrist();
-	std::cerr << "Zobrist[0][0][0] = " << zobristTabel[0][0][0] << "\n";
+
 	GameState state;
 	
 	std::string line;
@@ -121,8 +120,8 @@ int main()
 	{
 		if (line == "uci")
 		{
-			std::cout << "id name StockFishofOurHeart\n";
-			std::cout << "id author AFROCHEM\n";
+			std::cout<<"id name StockFishofOurHeart\n";
+			std::cout<<"id author sam\n";
 			std::cout << "uciok\n";
 		}
 		else if (line == "isready")
@@ -154,7 +153,7 @@ int main()
     
     		long long myTime = state.WhiteToMove ? wtime : btime;
     		long long timeLimit = myTime / movesToGo;  
-    		timeLimit = std::max(timeLimit, 50LL);     
+    		timeLimit = std::min(timeLimit, 2000LL);     
 			Move move = selectBestMove(state,90,timeLimit,gameHistory);
 
 			if (move.from == -1)

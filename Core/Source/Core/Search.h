@@ -23,7 +23,7 @@ struct TTEntry{
     Move bestMove;
     enum Flag{EXACT,LOWER,UPPER} flag;
 };
-
+inline int historyTable[2][64][64]={};
 inline Move killerMoves[128][2];
 const int TT_SIZE=1<<22;
 inline TTEntry transpositionTable[TT_SIZE];
@@ -46,7 +46,13 @@ inline void CheckTime(){
         if(elapsed>=g_limits.timeLimitsMs) throw Timeup{};
     }
 }
-inline int moveScore(const GameState& state, const Move& move,int depth){
+inline int moveScore(const GameState& state, const Move& move,int depth,const Move& ttMove){
+    //TT move
+    if(move.from==ttMove.from&& move.to==ttMove.to&& move.type==ttMove.type){
+        return 200000;
+    }
+    
+    //capture
     bool isCapture=(move.type==MoveType::Capture||move.type==MoveType::PromotionCapture||move.type==MoveType::Enpassant);
     if(isCapture){
         PieceType victim=(move.type==MoveType::Enpassant)?PieceType::Pawn: state.getPiece(move.to).type;
@@ -54,20 +60,22 @@ inline int moveScore(const GameState& state, const Move& move,int depth){
 
         return 100000 + PieceValue(victim) *10 -PieceValue(attacker);
     }
+    //promo
     if(move.type==MoveType::Promotion){
         return 90000;
     }
+    //killer move
     auto moveEquals=[&](const Move &a,const Move &b){
         return a.from==b.from && a.to==b.to && a.type==b.type;
     };
     if(moveEquals(move,killerMoves[depth][0])||moveEquals(move,killerMoves[depth][1])){
         return 8000;
     }
-    return 0;
+    return historyTable[(int)state.WhiteToMove][move.from][move.to];
 }
-inline void orderMoves(const GameState& state, std::vector<Move>& moves,int depth){
-    std::sort(moves.begin(),moves.end(),[&state,depth](const Move& a,const Move& b){
-        return moveScore(state,a,depth)>moveScore(state,b,depth);
+inline void orderMoves(const GameState& state, std::vector<Move>& moves,int depth,const Move& ttMove){
+    std::sort(moves.begin(),moves.end(),[&](const Move& a,const Move& b){
+        return moveScore(state,a,depth,ttMove)>moveScore(state,b,depth,ttMove);
     });
 }
 
