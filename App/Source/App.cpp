@@ -132,7 +132,7 @@ int main()
 		{
 			gameHistory.clear();
 			state.LoadFEN(StartFen);
-			memset(transpositionTable, 0, sizeof(transpositionTable));
+			std::fill(std::begin(transpositionTable), std::end(transpositionTable), TTEntry{});
     		memset(killerMoves, 0, sizeof(killerMoves));
 		}
 		else if (line.rfind("position", 0) == 0)
